@@ -260,10 +260,21 @@ module `mname()`
    
    ////// PLACE YOUR CODE HERE
 
- 
-
-
-
+  always_comb
+  begin
+	//TODO: figure out if this is fixed point and how to add 2 fixed point numbers (unfix?)
+	//set x back to the ll of the bounding box
+	next_up_samp_R14S[0] = box_R13S[0][0];
+	//set y to the next row up
+	next_up_samp_R14S[1] = sample_R14S[1] + subSample_RnnnnU;
+	//add sample width to get next x
+	next_rt_samp_R14S[0] = sample_R14S[0] + subSample_RnnnnU;
+	next_rt_samp_R14S[1] = sample_R14S[1];
+	//check to see if the current sample is at the end of the bounding box
+	at_right_edg_R14H = box_R13S[1][0] == sample_R14S[0] ? 1'b1 : 1'b0;
+        at_top_edg_R14H = box_R13S[1][1] == sample_R14S[1] ? 1'b1 : 1'b0;
+	at_end_box_R14H = at_right_edg_R14H & at_top_edg_R14H;
+  end
 
 
 
@@ -277,26 +288,27 @@ module `mname()`
    
    always_comb begin
       unique case( state_R14H )
-        ( WAIT_STATE ): begin
-	   next_sample_R14S    =  
-	   next_validSamp_R14H =
-	   next_isQuad_R14H    =
-	   next_state_R14H     =
-	   next_poly_R14S      =
-	   next_color_R14U     = 
-	   next_box_R14S       =
-	   next_halt_RnnnnL    = 
-	end
-	( TEST_STATE ): begin
-	   next_sample_R14S    = 
-	   next_validSamp_R14H = 
-	   next_isQuad_R14H    = 
-	   next_state_R14H     =  
-	   next_poly_R14S      =  
-	   next_color_R14U     =  
-	   next_box_R14S       =  
-	   next_halt_RnnnnL    =   
+	( WAIT_STATE ): begin
+	   next_sample_R14S    = sample_R14S;
+	   next_validSamp_R14H = validPoly_R13H;
+	   next_isQuad_R14H    = isQuad_R13H; 
+	   //:TODO How do we tell if there is a new bounding box/poly to process? 
+	   next_state_R14H     = TEST_STATE; 
+	   next_poly_R14S      = poly_R13S;
+	   next_color_R14U     = color_R13U;
+	   next_box_R14S       = box_R13S; 
+	   next_halt_RnnnnL    = 0'b0; 
 	end      
+        ( TEST_STATE ): begin
+	   next_sample_R14S    = at_right_edg_R14H ? next_up_samp_R14S:next_rt_samp_R14S; 
+	   next_validSamp_R14H = validPoly_R13H; 
+	   next_isQuad_R14H    = isQuad_R13H;
+	   next_state_R14H     = at_end_box_R14H ? WAIT_STATE : TEST_STATE; 
+	   next_poly_R14S      = poly_R13S;
+	   next_color_R14U     = color_R13U; 
+	   next_box_R14S       = box_R13S;
+	   next_halt_RnnnnL    = 1'b1;
+	end
       endcase // case ( state_R14H )
       
    end //always_comb
