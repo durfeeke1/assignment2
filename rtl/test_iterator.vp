@@ -467,7 +467,7 @@ module `mname()`
 	   next_validSamp_R14H = ~(at_end_box_R14H && ~validPoly_R13H) ; 
 	   next_isQuad_R14H    = at_end_box_and_valid_R14H ? isQuad_R13H : isQuad_R14H;
 	   //if we are at the end of the box and there isn't a valid polygon
-	   next_state_R14H     = at_end_box_and_valid_R14H ? WAIT_STATE : TEST_STATE; 
+	   next_state_R14H     = (at_end_box_R14H && ~validPoly_R13H) ? WAIT_STATE : TEST_STATE; 
 	   next_poly_R14S      = at_end_box_and_valid_R14H ? poly_R13S : poly_R14S;
 	   next_color_R14U     = at_end_box_and_valid_R14H ? color_R13U : color_R14U; 
 	   next_box_R14S       = at_end_box_and_valid_R14H ? box_R13S : box_R14S;
@@ -475,22 +475,23 @@ module `mname()`
 	end
       endcase // case ( state_R14H )
 /*     
+     
+     $display("------------------------- \n");
      $display("state : %d \n", state_R14H);
      $display("lower order bits : %B \n", lower_order_bits);
      $display("zero plus subsample width : %B \n", zeroed_subSample_RnnnnU);
      $display("xxxx sample x : %B \n", sample_R14S[0]);
      $display("next sample x : %B \n", next_sample_R14S[0]);
      $display("next sample x : %f \n", `unFix('next_sample_R14S[0]', $radix)`);
-*/
      $display("xxxx sample x : %f \n", `unFix('sample_R14S[0]',$radix)`);
      $display("next sample x : %f \n", `unFix('next_sample_R14S[0]',$radix)`);
      $display("box x : %f \n", `unFix('box_R14S[0][0]',$radix)`);
      $display("next box x : %f \n", `unFix('next_box_R14S[0][0]',$radix)`);
      $display("next right x : %f \n", `unFix('next_rt_samp_R14S[0]',$radix)`);
-//   $display("next right y : %f \n", `unFix('next_rt_samp_R14S[1]',$radix)`);
      $display("at right edge : %D \n", at_right_edg_R14H);
      $display("at end box and valid : %D \n", at_end_box_and_valid_R14H);
      $display("------------------------- \n");
+*/
    end //always_comb
    
    //////
