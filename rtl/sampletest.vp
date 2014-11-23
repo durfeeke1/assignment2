@@ -108,6 +108,16 @@ module  `mname()`
     output logic 			 hit_valid_R18H                   // Is hit good
     );
    
+    /* synopsys dc_tcl_script_begin
+    //; #set_ungroup [current_design] true
+    //; #set_flatten true -effort high -phase true -design [current_design]
+    //; #   https://solvnet.synopsys.com/dow_retrieve/G-2012.03/manpages/syn2/set_dont_retime.html
+    //; #set_dont_retime [current_design] false 
+    //; #set_optimize_registers true -design [current_design]
+    //; #balance_registers
+    //; #justification_effort high -delay_threshold .25
+    */
+   
    // output for retiming registers	
    logic signed [`$sig_fig`-1:0] 	 hit_R18S_retime[`$axis`-1:0];   // Hit Location
    logic 				 unsigned [`$sig_fig`-1:0]  color_R18U_retime[`$colors`-1:0];   // Color of Poly
