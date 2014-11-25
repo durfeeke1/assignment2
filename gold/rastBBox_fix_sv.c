@@ -33,7 +33,13 @@ int rastBBox_bbox_check( int   v0_x,     //uPoly
   int   check_ll_y  = ll_y;     //BBOX
   int   check_ur_x  = ur_x;     //BBOX
   int   check_ur_y  = ur_y;     //BBOX
-  int  check_valid = valid ;   //BBOX  
+  int  check_valid = valid ;   //BBOX
+
+  int ax = v1_x - v0_x;
+  int by = v2_y - v1_y;
+  int bx = v2_x - v1_x;
+  int ay = v1_y - v0_y;  
+  int direction = (((ax*by)-(bx*ay)) < 0);
 
   int  correct = 1 ;  //Assume true
 
@@ -96,7 +102,7 @@ int rastBBox_bbox_check( int   v0_x,     //uPoly
   ll_y = ( !b_y[1] && !b_y[3] )                 ? poly.v[2].x[1] :  ll_y ;
   ll_y = ( !b_y[2] && !b_y[4] && !b_y[5] && q ) ? poly.v[3].x[1] :  ll_y ;
 
-  valid = (! ((ll_x > screen_w) || (ll_y > screen_h) || (ur_x < 0) || (ur_y < 0)) ) && valid_Poly; 
+  valid = (! ((ll_x > screen_w) || (ll_y > screen_h) || (ur_x < 0) || (ur_y < 0)) ) && valid_Poly && direction; 
 
 
   //Clamp BBox

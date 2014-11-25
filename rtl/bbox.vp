@@ -121,8 +121,9 @@
 //; my $pipe_depth = parameter(Name=>'PipelineDepth',
 //;                            Val=>3, Min=>1, Step=>1, 
 //;                            Doc=>"How many pipe stages are in this block");
-
-
+//; my $bfc_opt_on = parameter(Name=>'BfcOptOn',
+//;                            Val=>'YES', List=>['YES', 'NO'],
+//;                            Doc=>"Eliminate back facing polys in earlier stage");
 
 module `mname()`
   (
@@ -162,6 +163,13 @@ module `mname()`
    logic [1:0][1:0] 			invalidate_R10H;             // polygon out of bounds
    logic signed [`$sig_fig`-1:0] 	out_box_R10S[1:0][1:0];      // bounds for output
    logic 				outvalid_R10H;               // output is valid
+//; if ($bfc_opt_on eq 'YES'){ 
+   logic signed [`$sig_fig`-1:0] 	ax_R10S;                     // x component of vector a 
+   logic signed [`$sig_fig`-1:0] 	ay_R10S;                     // y component of vector a 
+   logic signed [`$sig_fig`-1:0] 	bx_R10S;                     // x component of vector b 
+   logic signed [`$sig_fig`-1:0] 	by_R10S;                     // y component of vector b 
+   logic				n_dir_R10H;	             // direction of normal vector 
+//; }
    //R10 Signals
    
    // output for retiming registers
@@ -372,10 +380,25 @@ module `mname()`
 			   clamp_R10H[1][1] ? screen_RnnnnS[1] : rounded_box_R10S[1][1];
    end
    //Select Between Screen Bounds and Rounded Bounds
-   
-   assign  outvalid_R10H = ~( | invalidate_R10H ) & validPoly_R10H ;
-
-   
+  
+//; if ($bfc_opt_on eq 'YES'){ 
+   always_comb begin
+     // ax = x1 - x0
+     ax_R10S = poly_R10S[1][0] - poly_R10S[0][0]; 
+     // by = y2 - y1
+     by_R10S = poly_R10S[2][1] - poly_R10S[1][1];
+     // bx = x2 - x1
+     bx_R10S = poly_R10S[2][0] - poly_R10S[1][0];
+     // ay = y1 - y0
+     ay_R10S = poly_R10S[1][1] - poly_R10S[0][1];
+     n_dir_R10H = (((ax_R10S*by_R10S) - (bx_R10S*ay_R10S)) < 0);
+     
+   end
+ 
+   assign  outvalid_R10H = ~( | invalidate_R10H ) & validPoly_R10H & n_dir_R10H;
+//; } else {
+   assign  outvalid_R10H = ~( | invalidate_R10H ) & validPoly_R10H;
+//; }   
    //Flop Clamped Box to R13_retime with retiming registers
    //; my $d_bbx_r1 = generate( 'dff3', "d_bbx_r1", 
    //;                        BitWidth=>$sig_fig,
