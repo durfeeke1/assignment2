@@ -550,7 +550,7 @@ module `mname()`
      bx_R10S = poly_R10S[2][0] - poly_R10S[1][0];
      // ay = y1 - y0
      ay_R10S = poly_R10S[1][1] - poly_R10S[0][1];
-     n_dir_R10H = (((ax_R10S*by_R10S) - (bx_R10S*ay_R10S)) < 0);
+     n_dir_R10H = (((ax_R10S*by_R10S) - (bx_R10S*ay_R10S)) <= 0);
      
    end
  
