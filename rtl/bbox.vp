@@ -110,7 +110,7 @@
 //;                            Val=>10, Min=>1, Step=>1, 
 //;                            Doc=>"Fraction bits in color and position");
 //; my $verts      = parameter(Name=>'Vertices',
-//;                            Val=>3, Min=>3, Step=>1, 
+//;                            Val=>4, Min=>3, Step=>1, 
 //;                            Doc=>"Maximum Vertices in micropolygon");
 //; my $axis       = parameter(Name=>'Axis',
 //;                            Val=>3, Min=>1, Step=>1, 
@@ -181,7 +181,87 @@ module `mname()`
    // output for retiming registers
 
    //; # if( $verts == 4 ) {
-   /* OLD QUAD CODE Used to be here */
+   always_comb begin
+      //Compare X
+      cmp_R10H[0][0] =  poly_R10S[0][0] <  poly_R10S[1][0] ; // first vertex smaller than second vertex
+      cmp_R10H[0][1] =  poly_R10S[0][0] <  poly_R10S[2][0] ; // first vertex smaller than third vertex
+      cmp_R10H[0][2] =  poly_R10S[0][0] <  poly_R10S[3][0] ; // first vertex smaller than fourth vertex
+      cmp_R10H[0][3] =  poly_R10S[1][0] <  poly_R10S[2][0] ; // second vertex smaller than third vertex
+      cmp_R10H[0][4] =  poly_R10S[1][0] <  poly_R10S[3][0] ; // second vertex smaller than fourth vertex
+      cmp_R10H[0][5] =  poly_R10S[2][0] <  poly_R10S[3][0] ; // third vertex smaller than fourth vertex
+
+      //Compare Y
+      cmp_R10H[1][0] =  poly_R10S[0][1] <  poly_R10S[1][1] ; // first vertex smaller than second vertex
+      cmp_R10H[1][1] =  poly_R10S[0][1] <  poly_R10S[2][1] ; // first vertex smaller than third vertex
+      cmp_R10H[1][2] =  poly_R10S[0][1] <  poly_R10S[3][1] ; // first vertex smaller than fourth vertex
+      cmp_R10H[1][2] =  poly_R10S[1][1] <  poly_R10S[2][1] ; // second vertex smaller than third vertex
+      cmp_R10H[1][4] =  poly_R10S[1][1] <  poly_R10S[3][1] ; // second vertex smaller than fourth vertex
+      cmp_R10H[1][5] =  poly_R10S[2][1] <  poly_R10S[3][1] ; // third vertex smaller than fourth vertex
+   end
+
+   always_comb begin
+      //Decoded Select
+      //  sel[n][m][p]
+      //  n=0 -> ll n=1 -> ur
+      //  m=0 -> x  m=1 -> y
+      //  p correspeonds to vertice index
+
+      // X
+      bbox_sel_R10H[0][0][0] =  cmp_R10H[0][0] &  cmp_R10H[0][1] &  cmp_R10H[0][2]; // first is smallest vertex
+      bbox_sel_R10H[0][0][1] = !cmp_R10H[0][0] &  cmp_R10H[0][3] &  cmp_R10H[0][4]; // second is smallest vertex
+      bbox_sel_R10H[0][0][2] = !cmp_R10H[0][1] & !cmp_R10H[0][3] &  cmp_R10H[0][5]; // third is smallest vertex
+      bbox_sel_R10H[0][0][3] = !cmp_R10H[0][2] & !cmp_R10H[0][4] & !cmp_R10H[0][5]; // fourth is smallest vertex
+      bbox_sel_R10H[1][0][0] = !cmp_R10H[0][0] & !cmp_R10H[0][1] & !cmp_R10H[0][3]; // first is largest vertex
+      bbox_sel_R10H[1][0][1] =  cmp_R10H[0][0] & !cmp_R10H[0][3] & !cmp_R10H[0][4]; // second is largest vertex
+      bbox_sel_R10H[1][0][2] =  cmp_R10H[0][1] &  cmp_R10H[0][3] & !cmp_R10H[0][5]; // third is largest vertex
+      bbox_sel_R10H[1][0][3] =  cmp_R10H[0][2] &  cmp_R10H[0][4] &  cmp_R10H[0][5]; // fourth is largest vertex
+
+      // Y
+      bbox_sel_R10H[0][1][0] =  cmp_R10H[1][0] &  cmp_R10H[1][1] &  cmp_R10H[1][2]; // first is smallest vertex
+      bbox_sel_R10H[0][1][1] = !cmp_R10H[1][0] &  cmp_R10H[1][3] &  cmp_R10H[1][4]; // second is smallest vertex
+      bbox_sel_R10H[0][1][2] = !cmp_R10H[1][1] & !cmp_R10H[1][3] &  cmp_R10H[1][5]; // third is smallest vertex
+      bbox_sel_R10H[0][1][3] = !cmp_R10H[1][2] & !cmp_R10H[1][4] & !cmp_R10H[1][5]; // fourth is smallest vertex
+      bbox_sel_R10H[1][1][0] = !cmp_R10H[1][0] & !cmp_R10H[1][1] & !cmp_R10H[1][3]; // first is largest vertex
+      bbox_sel_R10H[1][1][1] =  cmp_R10H[1][0] & !cmp_R10H[1][3] & !cmp_R10H[1][4]; // second is largest vertex
+      bbox_sel_R10H[1][1][2] =  cmp_R10H[1][1] &  cmp_R10H[1][3] & !cmp_R10H[1][5]; // third is largest vertex
+      bbox_sel_R10H[1][1][3] =  cmp_R10H[1][2] &  cmp_R10H[1][4] &  cmp_R10H[1][5]; // fourth is largest vertex
+
+      //Upper Right X Select
+      unique case( 1'b1 )
+        ( bbox_sel_R10H[1][0][0] ): box_R10S[1][0] = poly_R10S[0][0] ; // set first vertex to be largest
+        ( bbox_sel_R10H[1][0][1] ): box_R10S[1][0] = poly_R10S[1][0] ; // set
+        ( bbox_sel_R10H[1][0][2] ): box_R10S[1][0] = poly_R10S[2][0] ;
+        ( bbox_sel_R10H[1][0][3] ): box_R10S[1][0] = poly_R10S[3][0] ;
+      endcase //
+
+      //Lower Left X Select
+      unique case( 1'b1 )
+        ( bbox_sel_R10H[0][0][0] ): box_R10S[0][0] = poly_R10S[0][0] ;
+        ( bbox_sel_R10H[0][0][1] ): box_R10S[0][0] = poly_R10S[1][0] ;
+        ( bbox_sel_R10H[0][0][2] ): box_R10S[0][0] = poly_R10S[2][0] ;
+        ( bbox_sel_R10H[0][0][3] ): box_R10S[0][0] = poly_R10S[3][0] ;
+      endcase //
+
+      //Upper Right Y Select
+      unique case( 1'b1 )
+        ( bbox_sel_R10H[1][1][0] ): box_R10S[1][1] = poly_R10S[0][1] ;
+        ( bbox_sel_R10H[1][1][1] ): box_R10S[1][1] = poly_R10S[1][1] ;
+        ( bbox_sel_R10H[1][1][2] ): box_R10S[1][1] = poly_R10S[2][1] ;
+        ( bbox_sel_R10H[1][1][3] ): box_R10S[1][1] = poly_R10S[3][1] ;
+      endcase //
+
+      //Lower Left Y Select
+      unique case( 1'b1 )
+        ( bbox_sel_R10H[0][1][0] ): box_R10S[0][1] = poly_R10S[0][1] ;
+        ( bbox_sel_R10H[0][1][1] ): box_R10S[0][1] = poly_R10S[1][1] ;
+        ( bbox_sel_R10H[0][1][2] ): box_R10S[0][1] = poly_R10S[2][1] ;
+        ( bbox_sel_R10H[0][1][3] ): box_R10S[0][1] = poly_R10S[3][1] ;
+      endcase //
+
+      //End Selection of Bounding Box
+
+      end // always_comb
+
    //; # }
    
    /* Note to the bold!!! */
@@ -199,15 +279,15 @@ module `mname()`
    //Note: <= might be faster than < and functionally equivelant here
    always_comb begin
       //Compare X
-      cmp_R10H[0][0] =  poly_R10S[0][0] <  poly_R10S[1][0] ;
-      cmp_R10H[0][1] =  poly_R10S[0][0] <  poly_R10S[2][0] ;
-      cmp_R10H[0][2] =  poly_R10S[1][0] <  poly_R10S[2][0] ;
+      cmp_R10H[0][0] =  poly_R10S[0][0] <  poly_R10S[1][0] ; // first vertex smaller than second vertex
+      cmp_R10H[0][1] =  poly_R10S[0][0] <  poly_R10S[2][0] ; // first vertex smaller than third vertex
+      cmp_R10H[0][2] =  poly_R10S[1][0] <  poly_R10S[2][0] ; // second vertex smaller than third vertex
       cmp_R10H[0][5:3] = 3'b0;
       
       //Compare Y
-      cmp_R10H[1][0] =  poly_R10S[0][1] <  poly_R10S[1][1] ;
-      cmp_R10H[1][1] =  poly_R10S[0][1] <  poly_R10S[2][1] ;
-      cmp_R10H[1][2] =  poly_R10S[1][1] <  poly_R10S[2][1] ;
+      cmp_R10H[1][0] =  poly_R10S[0][1] <  poly_R10S[1][1] ; // first vertex smaller than second vertex
+      cmp_R10H[1][1] =  poly_R10S[0][1] <  poly_R10S[2][1] ; // first vertex smaller than third vertex
+      cmp_R10H[1][2] =  poly_R10S[1][1] <  poly_R10S[2][1] ; // second vertex smaller than third vertex
       cmp_R10H[1][5:3] = 3'b0;
    end 
    
@@ -219,12 +299,12 @@ module `mname()`
       //  p correspeonds to vertice index
       
       // X
-      bbox_sel_R10H[0][0][0] =  cmp_R10H[0][0] &  cmp_R10H[0][1] ;	    
-      bbox_sel_R10H[0][0][1] = !cmp_R10H[0][0] &  cmp_R10H[0][2] ; 
-      bbox_sel_R10H[0][0][2] = !cmp_R10H[0][1] & !cmp_R10H[0][2] ; 
-      bbox_sel_R10H[1][0][0] = !cmp_R10H[0][0] & !cmp_R10H[0][1] ; 
-      bbox_sel_R10H[1][0][1] =  cmp_R10H[0][0] & !cmp_R10H[0][2] ; 
-      bbox_sel_R10H[1][0][2] =  cmp_R10H[0][1] &  cmp_R10H[0][2] ; 
+      bbox_sel_R10H[0][0][0] =  cmp_R10H[0][0] &  cmp_R10H[0][1] ; // first is smallest vertex	    
+      bbox_sel_R10H[0][0][1] = !cmp_R10H[0][0] &  cmp_R10H[0][2] ; // second is smallest vertex
+      bbox_sel_R10H[0][0][2] = !cmp_R10H[0][1] & !cmp_R10H[0][2] ; // third is smallest vertex
+      bbox_sel_R10H[1][0][0] = !cmp_R10H[0][0] & !cmp_R10H[0][1] ; // first is largest vertex
+      bbox_sel_R10H[1][0][1] =  cmp_R10H[0][0] & !cmp_R10H[0][2] ; // second is largest vertex
+      bbox_sel_R10H[1][0][2] =  cmp_R10H[0][1] &  cmp_R10H[0][2] ; // third is largest vertex
       
       // Y
       bbox_sel_R10H[0][1][0] =  cmp_R10H[1][0] &  cmp_R10H[1][1]  ; 
@@ -254,8 +334,8 @@ module `mname()`
       
       //Upper Right X Select
       unique case( 1'b1 )
-	( bbox_sel_R10H[1][0][0] ): box_R10S[1][0] = poly_R10S[0][0] ;
-	( bbox_sel_R10H[1][0][1] ): box_R10S[1][0] = poly_R10S[1][0] ;
+	( bbox_sel_R10H[1][0][0] ): box_R10S[1][0] = poly_R10S[0][0] ; // set first vertex to be largest
+	( bbox_sel_R10H[1][0][1] ): box_R10S[1][0] = poly_R10S[1][0] ; // set 
 	( bbox_sel_R10H[1][0][2] ): box_R10S[1][0] = poly_R10S[2][0] ;
       endcase // 
       
@@ -382,7 +462,7 @@ module `mname()`
    //Select Between Screen Bounds and Rounded Bounds
   
 //; if ($bfc_opt_on eq 'YES'){ 
-   always_comb begin
+     always_comb begin
      // ax = x1 - x0
      ax_R10S = poly_R10S[1][0] - poly_R10S[0][0]; 
      // by = y2 - y1

@@ -41,7 +41,7 @@
 //;                            Val=>10, Min=>1, Step=>1, 
 //;                            Doc=>"Fraction bits in color and position");
 //; my $verts      = parameter(Name=>'Vertices',
-//;                            Val=>3, Min=>3, Step=>1, 
+//;                            Val=>4, Min=>3, Step=>1, 
 //;                            Doc=>"Maximum Vertices in micropolygon");
 //; my $axis       = parameter(Name=>'Axis',
 //;                            Val=>3, Min=>1, Step=>1, 
@@ -87,9 +87,20 @@ module `mname()`
    string             format_header;	      
    int 	      fh; //test file handle
    int 	      count;
+   int 	      count2;
    int 	      msaa;
    int 	      line_num;
    int 	      num_vertices;
+   int        num_vertices2;
+   int        validPoly_R10H1;
+   int        validPoly_R10H2;
+   int        counter1;
+   int        counter2;   
+
+   // temporary variables for combining triangles into quads
+   int        was_combined;
+   logic   signed   [`$sig_fig`-1:0]  tmp2_poly_R10S[`$verts`-1:0][`$axis`-1:0] ; // Output: 4 Sets X,Y Fixed Point Values
+   logic   unsigned [`$sig_fig`-1:0]  tmp2_color_R10U[`$colors`-1:0];
 
    logic 	      TestFinish ;
 
@@ -124,6 +135,8 @@ module `mname()`
 	 ss_w_lg2         = 1 ;             //MSAA=x4 ss_w=2 ss_w_lg2=1
 	 
 	 validPoly_R10H  = 1'b0;          // Not Valid
+	 validPoly_R10H1 = 1'b0;
+	 validPoly_R10H2 = 1'b0;
 	 TestFinish = 1'b0;		  // Simulation signal to tell bench when I'm done
       end
    endtask // InitLines
@@ -168,6 +181,9 @@ module `mname()`
 	     assert (0) else $fatal(2, "ERROR: Illigal MSAA input %d", msaa);	    
 	 endcase // case(msaa)
 	  	 
+	 was_combined = 1'b1;
+	 counter1 = 0;
+         counter2 = 0;
       end
    endtask
    
@@ -185,10 +201,13 @@ module `mname()`
 	 repeat (2) @(posedge clk);
 
 	 // Now start driving the signals
-	 while (!$feof(fh)) begin
+	 while (!$feof(fh) || !was_combined) begin
 	     // Wait until the design is ready (unhalted)
 	    while( ! halt_RnnnnL ) @(posedge clk);
+            
+            counter2 = counter2+1;
 
+	    if (was_combined) begin
 	    // read a polygon from the file\
 	    // Need to fix conversion tool to include depth
 	    // Data is strongly dependent on parameterization
@@ -202,22 +221,104 @@ module `mname()`
 			    tmp_poly_R10S[3][0], tmp_poly_R10S[3][1], tmp_poly_R10S[3][2],
 			    tmp_color_R10U[0],   tmp_color_R10U[1],   tmp_color_R10U[2] );
 
-	    for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
-	       poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
-	       poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
-	       poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
-	    end
-	       
-	    color_R10U[0] = tmp_color_R10U[0];
-	    color_R10U[1] = tmp_color_R10U[1];
-	    color_R10U[2] = tmp_color_R10U[2];
+	    count2 = $fscanf(fh, "%1b %1d %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x",
+			    validPoly_R10H2, num_vertices2,
+                            tmp2_poly_R10S[0][0], tmp2_poly_R10S[0][1], tmp2_poly_R10S[0][2],
+                            tmp2_poly_R10S[1][0], tmp2_poly_R10S[1][1], tmp2_poly_R10S[1][2],
+                            tmp2_poly_R10S[2][0], tmp2_poly_R10S[2][1], tmp2_poly_R10S[2][2],
+                            tmp2_poly_R10S[3][0], tmp2_poly_R10S[3][1], tmp2_poly_R10S[3][2],
+                            tmp2_color_R10U[0],   tmp2_color_R10U[1],   tmp2_color_R10U[2] );
+		
+		if (num_vertices == 3 & num_vertices2 == 3) begin
+			if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+                        	poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
+		                poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
+              			poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
+				poly_R10S[1][0] = tmp_poly_R10S[1][0] ;
+              		        poly_R10S[1][1] = tmp_poly_R10S[1][1] ;
+              			poly_R10S[1][2] = tmp_poly_R10S[1][2] ;
+	    			poly_R10S[2][0] = tmp_poly_R10S[2][0] ;
+              			poly_R10S[2][1] = tmp_poly_R10S[2][1] ;
+               			poly_R10S[2][2] = tmp_poly_R10S[2][2] ;
+	       			poly_R10S[3][0] = tmp2_poly_R10S[1][0] ;
+               			poly_R10S[3][1] = tmp2_poly_R10S[1][1] ;
+               			poly_R10S[3][2] = tmp2_poly_R10S[1][2] ;
+				isQuad_R10H = 1'b1;
+				was_combined = 1'b1;
+	                        validPoly_R10H = validPoly_R10H1 & validPoly_R10H2;
+				counter1 = counter1+1;
+			end			
+	   		else begin
+				for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
+	       				poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
+	       				poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
+	       				poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
+	    			end
+				isQuad_R10H = 1'b0;
+				was_combined = 1'b0;
+                                validPoly_R10H = validPoly_R10H1;
+			end
+			// Should we compare if colors are the same as well?
+            		color_R10U[0] = tmp_color_R10U[0];
+            		color_R10U[1] = tmp_color_R10U[1];
+            		color_R10U[2] = tmp_color_R10U[2];
+		end
+            end
 	    
+            else begin
+                count = $fscanf(fh, "%1b %1d %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x",
+                            validPoly_R10H1, num_vertices,
+                            tmp_poly_R10S[0][0], tmp_poly_R10S[0][1], tmp_poly_R10S[0][2],
+                            tmp_poly_R10S[1][0], tmp_poly_R10S[1][1], tmp_poly_R10S[1][2],
+                            tmp_poly_R10S[2][0], tmp_poly_R10S[2][1], tmp_poly_R10S[2][2],
+                            tmp_poly_R10S[3][0], tmp_poly_R10S[3][1], tmp_poly_R10S[3][2],
+                            tmp_color_R10U[0],   tmp_color_R10U[1],   tmp_color_R10U[2] );
+	    
+		if (num_vertices == 3 & num_vertices2 == 3) begin
+                        if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+                                poly_R10S[0][0] = tmp2_poly_R10S[0][0] ;
+                                poly_R10S[0][1] = tmp2_poly_R10S[0][1] ;
+                                poly_R10S[0][2] = tmp2_poly_R10S[0][2] ;
+                                poly_R10S[1][0] = tmp2_poly_R10S[1][0] ;
+                                poly_R10S[1][1] = tmp2_poly_R10S[1][1] ;
+                                poly_R10S[1][2] = tmp2_poly_R10S[1][2] ;
+                                poly_R10S[2][0] = tmp2_poly_R10S[2][0] ;
+                                poly_R10S[2][1] = tmp2_poly_R10S[2][1] ;
+                                poly_R10S[2][2] = tmp2_poly_R10S[2][2] ;
+                                poly_R10S[3][0] = tmp_poly_R10S[1][0] ;
+                                poly_R10S[3][1] = tmp_poly_R10S[1][1] ;
+                                poly_R10S[3][2] = tmp_poly_R10S[1][2] ;
+                                isQuad_R10H = 1'b1;
+                                was_combined = 1'b1;
+                                validPoly_R10H = validPoly_R10H1 & validPoly_R10H2;
+				counter1 = counter1+1;
+			end
+                        else begin
+                                for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
+                                        poly_R10S[eachVertsA][0] = tmp2_poly_R10S[eachVertsA][0] ;
+                                        poly_R10S[eachVertsA][1] = tmp2_poly_R10S[eachVertsA][1] ;
+                                        poly_R10S[eachVertsA][2] = tmp2_poly_R10S[eachVertsA][2] ;
+					tmp2_poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
+                                        tmp2_poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
+                                        tmp2_poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
+                                end
+                                isQuad_R10H = 1'b0;
+                                was_combined = 1'b0;
+ 				validPoly_R10H = validPoly_R10H2;
+                        end
+			
+			color_R10U[0] = tmp2_color_R10U[0];
+	                color_R10U[1] = tmp2_color_R10U[1];
+           		color_R10U[2] = tmp2_color_R10U[2];
+
+                end
+
 	    // make sure we read a polygon with either 3 or 4 vertices
 	    assert (num_vertices==3 || num_vertices==4)
 	       else $fatal(2, "ERROR: Wrong number of vertices for polygon at line %0d", line_num);
 	    assert (`$verts`==3 && num_vertices==3 || `$verts`==4)
 	       else $fatal(2, "Error: Input contains triangle pairs, should only contain singles at line %0d", line_num);
-	    isQuad_R10H = (num_vertices==4) ? 1'b1:1'b0;
+	    //isQuad_R10H = (num_vertices==4) ? 1'b1:1'b0;
 
 	    // If we were able to read the line, continue, else finish this simulation
 	    if (count!=-1)begin
@@ -225,6 +326,7 @@ module `mname()`
 	       line_num = line_num+1;
 	       @(posedge clk);
 	    end
+	 end
 	 end // while (!$feof(fh))
 	 $fclose(fh);
 
@@ -246,6 +348,8 @@ module `mname()`
 	 // Now let the pipe clean and finish
 	 repeat(10) @(posedge clk);
 	 TestFinish = 1'b1;
+	 $display("counter1: \n", counter1);
+         $display("counter2: \n", counter2);
 	 $display("time=%10t ************** Driver Is Done *****************", $time);
 
       end
