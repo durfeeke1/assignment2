@@ -20,6 +20,7 @@
    //; my $sig_fig = $dut_obj->get_param('SigFig');
    //; my $radix = $dut_obj->get_param('Radix');
    //; my $verts = $dut_obj->get_param('Vertices');
+   //; my $verts = 4;
    //; my $axis = $dut_obj->get_param('Axis');
    //; my $colors = $dut_obj->get_param('Colors');
    //; my $pipes_box = $dut_obj->get_param('PipesBox');

@@ -229,8 +229,10 @@ module `mname()`
                             tmp2_poly_R10S[3][0], tmp2_poly_R10S[3][1], tmp2_poly_R10S[3][2],
                             tmp2_color_R10U[0],   tmp2_color_R10U[1],   tmp2_color_R10U[2] );
 		
-		if (num_vertices == 3 & num_vertices2 == 3) begin
-			if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+		if (num_vertices == 3 && num_vertices2 == 3) begin
+			if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && 
+			    tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && 
+			    tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
                         	poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
 		                poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
               			poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
@@ -275,7 +277,10 @@ module `mname()`
                             tmp_color_R10U[0],   tmp_color_R10U[1],   tmp_color_R10U[2] );
 	    
 		if (num_vertices == 3 & num_vertices2 == 3) begin
-                        if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+                        if (tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] && 
+		            tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] && 
+                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) 
+			begin
                                 poly_R10S[0][0] = tmp2_poly_R10S[0][0] ;
                                 poly_R10S[0][1] = tmp2_poly_R10S[0][1] ;
                                 poly_R10S[0][2] = tmp2_poly_R10S[0][2] ;

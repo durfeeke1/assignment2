@@ -39,7 +39,7 @@
 //;                            Val=>10, Min=>1, Step=>1, 
 //;                            Doc=>"Fraction bits in color and position");
 //; my $verts      = parameter(Name=>'Vertices',
-//;                            Val=>3, Min=>3, Step=>1, 
+//;                            Val=>4, Min=>3, Step=>1, 
 //;                            Doc=>"Maximum Vertices in micropolygon");
 //; my $axis       = parameter(Name=>'Axis',
 //;                            Val=>3, Min=>1, Step=>1, 

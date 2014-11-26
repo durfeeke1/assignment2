@@ -73,7 +73,8 @@
 //;                            Doc=>"How many pipe stages are in this block");
 //; 
 //; # local variables
-//; my $edges = ($verts == 3) ? 3 : 5 ;
+//;# my $edges = ($verts == 3) ? 3 : 5 ;
+//; my $edges = 6;
 //; my $shortSF = $sig_fig;
 //; my $MRound = 2 * $shortSF - $radix;
 
@@ -135,11 +136,12 @@ module  `mname()`
    logic 				 norm_factor_R16S ;
    logic signed [`$sig_fig`-1:0] 	 hit_R16S[`$axis`-1:0];  
    // Signals in Access Order 
-
+   logic				 triRes_R16H;
+   logic 			         quadRes_R16H;
    
 
    /* Organize Edge Data*/
-   //; for( my $i = 0 ; $i < $verts ; $i++ ) {
+   //; for( my $i = 0 ; $i < 4 ; $i++ ) {
    //; 	for( my $j = 0 ; $j < 2 ; $j++ ) {
    always_comb begin
       poly_shift_R16S[`$i`][`$j`] = poly_R16S[`$i`][`$j`] - sample_R16S[`$j`];
@@ -150,7 +152,7 @@ module  `mname()`
 
    
    /*Calculate Distance*/
-   //; if( $verts == 3 ) {
+   //;# if( $verts == 3 ) {
    always_comb begin
       edge_R16S[0][1] = poly_shift_R16S[1];
       edge_R16S[0][0] = poly_shift_R16S[0];
@@ -158,10 +160,19 @@ module  `mname()`
       edge_R16S[1][1] = poly_shift_R16S[2];
       edge_R16S[1][0] = poly_shift_R16S[1];
 
-      edge_R16S[2][1] = poly_shift_R16S[0];
+      edge_R16S[2][1] = poly_shift_R16S[3];
       edge_R16S[2][0] = poly_shift_R16S[2];
+
+      edge_R16S[3][1] = poly_shift_R16S[0];
+      edge_R16S[3][0] = poly_shift_R16S[3];
+
+      edge_R16S[4][1] = poly_shift_R16S[3];
+      edge_R16S[4][0] = poly_shift_R16S[1];
+
+      edge_R16S[5][1] = poly_shift_R16S[0];
+      edge_R16S[5][0] = poly_shift_R16S[2];
    end //always_comb
-   //; }
+   //;# }
    
    //; for( my $i = 0 ; $i < $edges ; $i++) {
    always_comb begin
@@ -171,19 +182,31 @@ module  `mname()`
    //; }
 
    
-   //; if( $edges == 3 ) {
+   //; # if( $edges == 3 ) {
    always_comb begin
       edge_chk1_R16[0] =  dist_lg_R16S[0]  <=  0 ;
       edge_chk1_R16[1] =  dist_lg_R16S[1]  <   0 ;
-      edge_chk1_R16[2] =  dist_lg_R16S[2]  <=  0 ;
+      edge_chk1_R16[2] =  dist_lg_R16S[2]  <  0 ;
+      edge_chk1_R16[3] =  dist_lg_R16S[3]  <=  0 ;
+      edge_chk1_R16[4] =  dist_lg_R16S[4]  <   0 ;
+      edge_chk1_R16[5] =  dist_lg_R16S[5]  <=  0 ;
    end  
-   //; } elsif( $edges == 5 ) {
-   always_comb begin
-      assert( 0 ) else $fatal( "Sample test unit not configured for 4 Vertices\n");
-   end  
-   //; }
+   //;# } elsif( $edges == 5 ) {
+   // always_comb begin
+   //   assert( 0 ) else $fatal( "Sample test unit not configured for 4 Vertices\n");
+   //end  
+   //;# }
 
-   assign hit_valid_R16H = & {edge_chk1_R16[2:0], validSamp_R16H}; //Back Face Cull Case
+   always_comb begin
+     triRes_R16H = (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[5]) && validSamp_R16H; //Back Face Cull Case
+     quadRes_R16H = ((edge_chk1_R16[1] && edge_chk1_R16[2] && ~edge_chk1_R16[4]) |
+                    (~edge_chk1_R16[1] && ~edge_chk1_R16[2] && edge_chk1_R16[4]) |
+                    (edge_chk1_R16[0] && edge_chk1_R16[3] && edge_chk1_R16[4]) |
+                    (~edge_chk1_R16[0] && ~edge_chk1_R16[3] && ~edge_chk1_R16[4]));
+                    //(~edge_chk1_R16[0] && ~edge_chk1_R16[3] && ~edge_chk1_R16[4])) && validSamp_R16H;
+   end
+
+   assign hit_valid_R16H = ((quadRes_R16H && isQuad_R16H) ||( triRes_R16H && ~isQuad_R16H)); //Back Face Cull Case
 
 
    
@@ -192,12 +215,12 @@ module  `mname()`
    //Calculate Depth as depth of first vertex
    // Note that a barrycentric interpolation would
    // be more accurate
-   //; if( $verts == 3) {
+   //; #if( $verts == 3) {
    always_comb begin
       hit_R16S[1:0] = sample_R16S[1:0]; //Make sure you use unjittered sample
       hit_R16S[2] = poly_R16S[0][2]; // z value equals the z value of the first vertex
    end
-   //; }
+   //;# }
    //TODO: Calculate Depth by berrycentric intropolation
 
 
