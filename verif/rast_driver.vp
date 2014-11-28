@@ -41,7 +41,7 @@
 //;                            Val=>10, Min=>1, Step=>1, 
 //;                            Doc=>"Fraction bits in color and position");
 //; my $verts      = parameter(Name=>'Vertices',
-//;                            Val=>3, Min=>3, Step=>1, 
+//;                            Val=>4, Min=>3, Step=>1, 
 //;                            Doc=>"Maximum Vertices in micropolygon");
 //; my $axis       = parameter(Name=>'Axis',
 //;                            Val=>3, Min=>1, Step=>1, 
@@ -73,8 +73,10 @@ module `mname()`
 
    logic   signed   [`$sig_fig`-1:0]  tmp_poly_R10S[`$verts`-1:0][`$axis`-1:0] ; // Output: 4 Sets X,Y Fixed Point Values
    logic   unsigned [`$sig_fig`-1:0]  tmp_color_R10U[`$colors`-1:0];
-
-   
+   logic   signed   [`$sig_fig`-1:0]  tmp2_poly_R10S[`$verts`-1:0][`$axis`-1:0] ; // Output: 4 Sets X,Y Fixed Point Values
+   logic   unsigned [`$sig_fig`-1:0]  tmp2_color_R10U[`$colors`-1:0];
+   logic   			      tmp2_validPoly_R10H;
+   logic 			      tmp_validPoly_R10H; 
    int signed     mini = -1024;
    int signed     maxi =  1024;    
    int            ss_w_lg2 ;
@@ -87,12 +89,15 @@ module `mname()`
    string             format_header;	      
    int 	      fh; //test file handle
    int 	      count;
+   int        count2;
    int 	      msaa;
    int 	      line_num;
    int 	      num_vertices;
+   int 	      tmp2_num_vertices;
+   int 	      tmp_num_vertices;
 
    logic 	      TestFinish ;
-
+   logic              read2;
 
    assign ss_w_lg2_RnnnnS = ss_w_lg2;
    
@@ -125,6 +130,7 @@ module `mname()`
 	 
 	 validPoly_R10H  = 1'b0;          // Not Valid
 	 TestFinish = 1'b0;		  // Simulation signal to tell bench when I'm done
+         read2 = 1'b0;
       end
    endtask // InitLines
    
@@ -194,24 +200,75 @@ module `mname()`
 	    // Data is strongly dependent on parameterization
 	    // This is brittle code!!!
 	    // Need some indirection to make this better
-	    count = $fscanf(fh, "%1b %1d %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x", 
-			    validPoly_R10H, num_vertices,
+            if(~read2) begin
+	      count = $fscanf(fh, "%1b %1d %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x", 
+			    tmp_validPoly_R10H, tmp_num_vertices,
 			    tmp_poly_R10S[0][0], tmp_poly_R10S[0][1], tmp_poly_R10S[0][2], 
 			    tmp_poly_R10S[1][0], tmp_poly_R10S[1][1], tmp_poly_R10S[1][2],
 			    tmp_poly_R10S[2][0], tmp_poly_R10S[2][1], tmp_poly_R10S[2][2],
 			    tmp_poly_R10S[3][0], tmp_poly_R10S[3][1], tmp_poly_R10S[3][2],
 			    tmp_color_R10U[0],   tmp_color_R10U[1],   tmp_color_R10U[2] );
-
-	    for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
-	       poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
-	       poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
-	       poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
-	    end
-	       
-	    color_R10U[0] = tmp_color_R10U[0];
-	    color_R10U[1] = tmp_color_R10U[1];
-	    color_R10U[2] = tmp_color_R10U[2];
 	    
+              count = $fscanf(fh, "%1b %1d %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x %6x", 
+			    tmp2_validPoly_R10H, tmp2_num_vertices,
+			    tmp2_poly_R10S[0][0], tmp2_poly_R10S[0][1], tmp2_poly_R10S[0][2], 
+			    tmp2_poly_R10S[1][0], tmp2_poly_R10S[1][1], tmp2_poly_R10S[1][2],
+			    tmp2_poly_R10S[2][0], tmp2_poly_R10S[2][1], tmp2_poly_R10S[2][2],
+			    tmp2_poly_R10S[3][0], tmp2_poly_R10S[3][1], tmp2_poly_R10S[3][2],
+			    tmp2_color_R10U[0],   tmp2_color_R10U[1],   tmp2_color_R10U[2] );
+
+               //if (  tmp_color_R10U[0] == tmp2_color_R10U[0] && tmp_color_R10U[1] == tmp2_color_R10U[1] && tmp_color_R10U[2] == tmp2_color_R10U[2] &&
+                          if(
+		            tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1] &&
+                            tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0] &&
+                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+                                poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
+                                poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
+                                poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
+                                poly_R10S[1][0] = tmp_poly_R10S[1][0] ;
+                                poly_R10S[1][1] = tmp_poly_R10S[1][1] ;
+                                poly_R10S[1][2] = tmp_poly_R10S[1][2] ;
+                                poly_R10S[2][0] = tmp_poly_R10S[2][0] ;
+                                poly_R10S[2][1] = tmp_poly_R10S[2][1] ;
+                                poly_R10S[2][2] = tmp_poly_R10S[2][2] ;
+                                poly_R10S[3][0] = tmp2_poly_R10S[1][0] ;
+                                poly_R10S[3][1] = tmp2_poly_R10S[1][1] ;
+                                poly_R10S[3][2] = tmp2_poly_R10S[1][2] ;
+                                num_vertices = 4; 
+                                read2 = 1'b0;
+              end
+              else begin
+	        for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
+	           poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
+	           poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
+	           poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
+	        end
+                num_vertices = tmp_num_vertices; 
+                read2 = 1'b1;
+	      end
+	       
+	        color_R10U[0] = tmp_color_R10U[0];
+	        color_R10U[1] = tmp_color_R10U[1];
+	        color_R10U[2] = tmp_color_R10U[2];
+
+                validPoly_R10H = tmp_validPoly_R10H;
+            end
+            else begin
+	      for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
+	         poly_R10S[eachVertsA][0] = tmp2_poly_R10S[eachVertsA][0] ;
+	         poly_R10S[eachVertsA][1] = tmp2_poly_R10S[eachVertsA][1] ;
+	         poly_R10S[eachVertsA][2] = tmp2_poly_R10S[eachVertsA][2] ;
+	      end
+	        
+	      color_R10U[0] = tmp2_color_R10U[0];
+	      color_R10U[1] = tmp2_color_R10U[1];
+	      color_R10U[2] = tmp2_color_R10U[2];
+
+              num_vertices = tmp2_num_vertices; 
+              validPoly_R10H = tmp2_validPoly_R10H;
+
+              read2 = 1'b0;
+            end
 	    // make sure we read a polygon with either 3 or 4 vertices
 	    assert (num_vertices==3 || num_vertices==4)
 	       else $fatal(2, "ERROR: Wrong number of vertices for polygon at line %0d", line_num);

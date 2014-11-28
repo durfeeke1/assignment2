@@ -137,7 +137,7 @@ module `mname()`
 			    ( sample_hit_count + 1 ) : sample_hit_count;
 	 
 	 micropolygon_count = ( poly_Rn1S != poly_RnnS ) ?
-			      ( micropolygon_count + 1 ) : micropolygon_count;
+			      ( micropolygon_count + 1 + isQuad_R16H ) : micropolygon_count;
 
 	 cycle_count++ ;
 	 
