@@ -217,11 +217,12 @@ module `mname()`
 			    tmp2_poly_R10S[3][0], tmp2_poly_R10S[3][1], tmp2_poly_R10S[3][2],
 			    tmp2_color_R10U[0],   tmp2_color_R10U[1],   tmp2_color_R10U[2] );
 
-               //if (  tmp_color_R10U[0] == tmp2_color_R10U[0] && tmp_color_R10U[1] == tmp2_color_R10U[1] && tmp_color_R10U[2] == tmp2_color_R10U[2] &&
-                          if(
+                     /*if(
 		            tmp_poly_R10S[0][0] == tmp2_poly_R10S[2][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[2][1]  &&
                             tmp_poly_R10S[0][2] == tmp2_poly_R10S[2][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[0][0]  &&
-                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]) begin
+                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[0][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[0][2]  &&
+                            tmp_color_R10U[0]   == tmp2_color_R10U[0]   && tmp_color_R10U[1]   == tmp2_color_R10U[1]    &&
+                            tmp_color_R10U[2]   == tmp2_color_R10U[2]                                                      ) begin
                                 poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
                                 poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
                                 poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
@@ -236,45 +237,49 @@ module `mname()`
                                 poly_R10S[3][2] = tmp2_poly_R10S[1][2] ;
                                 num_vertices = 4; 
                                 read2 = 1'b0;
-              end
+              end 
 	            else if(
                             tmp_poly_R10S[1][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[1][1] == tmp2_poly_R10S[0][1]  &&
                             tmp_poly_R10S[1][2] == tmp2_poly_R10S[0][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[2][0]  &&
-                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[2][2]) begin
-                                poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
-                                poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
-                                poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
-                                poly_R10S[1][0] = tmp_poly_R10S[1][0] ;
-                                poly_R10S[1][1] = tmp_poly_R10S[1][1] ;
-                                poly_R10S[1][2] = tmp_poly_R10S[1][2] ;
-                                poly_R10S[2][0] = tmp2_poly_R10S[1][0] ;
-                                poly_R10S[2][1] = tmp2_poly_R10S[1][1] ;
-                                poly_R10S[2][2] = tmp2_poly_R10S[1][2] ;
-                                poly_R10S[3][0] = tmp_poly_R10S[2][0] ;
-                                poly_R10S[3][1] = tmp_poly_R10S[2][1] ;
-                                poly_R10S[3][2] = tmp_poly_R10S[2][2] ;
-                                num_vertices = 4;
-                                read2 = 1'b0;
-              end
-                    else if(
-                            tmp_poly_R10S[0][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[0][1]  &&
-                            tmp_poly_R10S[0][2] == tmp2_poly_R10S[0][2] && tmp_poly_R10S[1][0] == tmp2_poly_R10S[2][0]  &&
-                            tmp_poly_R10S[1][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[1][2] == tmp2_poly_R10S[2][2]) begin
-                                poly_R10S[0][0] = tmp_poly_R10S[0][0] ;
-                                poly_R10S[0][1] = tmp_poly_R10S[0][1] ;
-                                poly_R10S[0][2] = tmp_poly_R10S[0][2] ;
+                            tmp_poly_R10S[2][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[2][2]  &&
+                            tmp_color_R10U[0]   == tmp2_color_R10U[0]   && tmp_color_R10U[1]   == tmp2_color_R10U[1]    &&
+                            tmp_color_R10U[2]   == tmp2_color_R10U[2]                                                      ) begin
+                                poly_R10S[0][0] = tmp2_poly_R10S[0][0] ;
+                                poly_R10S[0][1] = tmp2_poly_R10S[0][1] ;
+                                poly_R10S[0][2] = tmp2_poly_R10S[0][2] ;
                                 poly_R10S[1][0] = tmp2_poly_R10S[1][0] ;
                                 poly_R10S[1][1] = tmp2_poly_R10S[1][1] ;
                                 poly_R10S[1][2] = tmp2_poly_R10S[1][2] ;
-                                poly_R10S[2][0] = tmp_poly_R10S[1][0] ;
-                                poly_R10S[2][1] = tmp_poly_R10S[1][1] ;
-                                poly_R10S[2][2] = tmp_poly_R10S[1][2] ;
+                                poly_R10S[2][0] = tmp2_poly_R10S[2][0] ;
+                                poly_R10S[2][1] = tmp2_poly_R10S[2][1] ;
+                                poly_R10S[2][2] = tmp2_poly_R10S[2][2] ;
+                                poly_R10S[3][0] = tmp_poly_R10S[0][0] ;
+                                poly_R10S[3][1] = tmp_poly_R10S[0][1] ;
+                                poly_R10S[3][2] = tmp_poly_R10S[0][2] ;
+                                num_vertices = 4;
+                                read2 = 1'b0;
+              end*/
+                    if(
+                            tmp_poly_R10S[0][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[0][1] == tmp2_poly_R10S[0][1]  &&
+                            tmp_poly_R10S[0][2] == tmp2_poly_R10S[0][2] && tmp_poly_R10S[1][0] == tmp2_poly_R10S[2][0]  &&
+                            tmp_poly_R10S[1][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[1][2] == tmp2_poly_R10S[2][2]  &&
+                            tmp_color_R10U[0]   == tmp2_color_R10U[0]   && tmp_color_R10U[1]   == tmp2_color_R10U[1]    &&
+                            tmp_color_R10U[2]   == tmp2_color_R10U[2]                                                      ) begin
+                                poly_R10S[0][0] = tmp2_poly_R10S[0][0] ;
+                                poly_R10S[0][1] = tmp2_poly_R10S[0][1] ;
+                                poly_R10S[0][2] = tmp2_poly_R10S[0][2] ;
+                                poly_R10S[1][0] = tmp2_poly_R10S[1][0] ;
+                                poly_R10S[1][1] = tmp2_poly_R10S[1][1] ;
+                                poly_R10S[1][2] = tmp2_poly_R10S[1][2] ;
+                                poly_R10S[2][0] = tmp2_poly_R10S[2][0] ;
+                                poly_R10S[2][1] = tmp2_poly_R10S[2][1] ;
+                                poly_R10S[2][2] = tmp2_poly_R10S[2][2] ;
                                 poly_R10S[3][0] = tmp_poly_R10S[2][0] ;
                                 poly_R10S[3][1] = tmp_poly_R10S[2][1] ;
                                 poly_R10S[3][2] = tmp_poly_R10S[2][2] ;
                                 num_vertices = 4;
                                 read2 = 1'b0;
-              end
+              end 
               else begin
 	        for( eachVertsA = 0 ; eachVertsA < `$verts` ; eachVertsA++ ) begin
 	           poly_R10S[eachVertsA][0] = tmp_poly_R10S[eachVertsA][0] ;
