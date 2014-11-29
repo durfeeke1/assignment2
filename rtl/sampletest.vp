@@ -199,11 +199,18 @@ module  `mname()`
 
    always_comb begin
      triRes = (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[5]);
+     quadRes =
+	      (!edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
+	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && !edge_chk1_R16[4])
+	   || (!edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && !edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[2] && !edge_chk1_R16[3] && edge_chk1_R16[4])
+	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4]);
 
-     quadRes = (edge_chk1_R16[1] && edge_chk1_R16[2] && !edge_chk1_R16[4])
-           ||(!edge_chk1_R16[1] && !edge_chk1_R16[2] && edge_chk1_R16[4])
-           ||(edge_chk1_R16[0] && edge_chk1_R16[3] && edge_chk1_R16[4])
-           ||(!edge_chk1_R16[0] && !edge_chk1_R16[3] && !edge_chk1_R16[4]);
    end
 
 //   assign hit_valid_R16H = & {edge_chk1_R16[2:0], validSamp_R16H}; //Back Face Cull Case
