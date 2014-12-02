@@ -67,6 +67,7 @@ module `mname()`
      // Output Signals (to DUT inputs)
      output logic signed   [`$sig_fig`-1:0]  poly_R10S[`$verts`-1:0][`$axis`-1:0] , // Poly Position
      output logic unsigned [`$sig_fig`-1:0]  color_R10U[`$colors`-1:0] ,         // Color of Poly
+     output logic unsigned [`$sig_fig`-1:0]  color2_R10U[`$colors`-1:0] ,         // Color of Poly
      output logic 	                isQuad_R10H ,                    // Is Poly Quad?
      output logic 	                validPoly_R10H ,                 // Valid Data for Operation
 
@@ -118,6 +119,7 @@ module `mname()`
       .poly_R10S(poly_R10S) ,                // Output: 4 Sets X,Y Fixed Point Values
       .isQuad_R10H(isQuad_R10H)  ,           // Output: Is Poly Quad?
       .color_R10U(color_R10U) ,              // Output: Color of Polygon
+      .color2_R10U(color2_R10U) ,              // Output: Color of Polygon
       .validPoly_R10H(validPoly_R10H),       // Output: Valid Data for Operation
       .screen_RnnnnS(screen_RnnnnS) ,        // Output: Screen Dimensions
       .subSample_RnnnnU(subSample_RnnnnU),   // Output: SubSample_Interval

@@ -130,6 +130,7 @@ module `mname()`
    //Input Signals
    input logic signed [`$sig_fig`-1:0] 	poly_R10S[`$verts`-1:0][`$axis`-1:0] , // Sets X,Y Fixed Point Values
    input logic 				unsigned [`$sig_fig`-1:0] color_R10U[`$colors`-1:0] , // Color of Poly
+   input logic 				unsigned [`$sig_fig`-1:0] color2_R10U[`$colors`-1:0] , // Color of Poly
    input logic 				isQuad_R10H , // Is Poly Quad?
    input logic 				validPoly_R10H , // Valid Data for Operation
 
@@ -145,6 +146,7 @@ module `mname()`
    //Outout Signals
    output logic signed [`$sig_fig`-1:0] poly_R13S[`$verts`-1:0][`$axis`-1:0], // 4 Sets X,Y Fixed Point Values
    output logic 			unsigned [`$sig_fig`-1:0] color_R13U[`$colors`-1:0] , // Color of Poly
+   output logic 			unsigned [`$sig_fig`-1:0] color2_R13U[`$colors`-1:0] , // Color of Poly
    output logic 			isQuad_R13H, // Is Poly Quad?
    output logic signed [`$sig_fig`-1:0] box_R13S[1:0][1:0], // 2 Sets X,Y Fixed Point Values  
    output logic 			validPoly_R13H                  // Valid Data for Operation
@@ -175,6 +177,7 @@ module `mname()`
    // output for retiming registers
    logic signed [`$sig_fig`-1:0] 	poly_R13S_retime[`$verts`-1:0][`$axis`-1:0]; // 4 Sets X,Y Fixed Point Values
    logic 				unsigned [`$sig_fig`-1:0] color_R13U_retime[`$colors`-1:0];        // Color of Poly
+   logic 				unsigned [`$sig_fig`-1:0] color2_R13U_retime[`$colors`-1:0];        // Color of Poly
    logic signed [`$sig_fig`-1:0] 	box_R13S_retime[1:0][1:0];             // 2 Sets X,Y Fixed Point Values  
    logic 				isQuad_R13H_retime;                   // Is Poly Quad?
    logic 				validPoly_R13H_retime ;                 // Valid Data for Operation
@@ -428,6 +431,16 @@ module `mname()`
 			       .clk(clk) , .reset(rst), .en(halt_RnnnnL),
 			       .out(poly_R13S_retime));
    
+   //; my $d_bbx_r22 = generate( 'dff2', "d_bbx_r22", 
+   //;                        BitWidth=>$sig_fig,
+   //;                        ArraySize1=>$colors,
+   //;                        PipelineDepth=>$pipe_depth-1,
+   //;                        Retime=>'YES' );
+   `$d_bbx_r22->instantiate()`(
+			      .in(color2_R10U) , 
+			      .clk(clk) , .reset(rst), .en(halt_RnnnnL),
+			      .out(color2_R13U_retime));
+   
    //; my $d_bbx_r2 = generate( 'dff2', "d_bbx_r2", 
    //;                        BitWidth=>$sig_fig,
    //;                        ArraySize1=>$colors,
@@ -482,6 +495,16 @@ module `mname()`
 			      .in(color_R13U_retime) , 
 			      .clk(clk) , .reset(rst), .en(halt_RnnnnL),
 			      .out(color_R13U));
+   
+   //; my $d_bbx_f22 = generate( 'dff2', "d_bbx_f22", 
+   //;                        BitWidth=>$sig_fig,
+   //;                        ArraySize1=>$colors,
+   //;                        PipelineDepth=>1,
+   //;                        Retime=>'NO' );
+   `$d_bbx_f22->instantiate()`(
+			      .in(color2_R13U_retime) , 
+			      .clk(clk) , .reset(rst), .en(halt_RnnnnL),
+			      .out(color2_R13U));
    
    //; my $d_bbx_f3 = generate( 'dff3', "d_bbx_f3", 
    //;                        BitWidth=>$sig_fig,

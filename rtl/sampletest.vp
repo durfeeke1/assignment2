@@ -73,7 +73,7 @@
 //;                            Doc=>"How many pipe stages are in this block");
 //; 
 //; # local variables
-//; my $edges = (`$verts` == 3) ? 3 : 6;
+//; my $edges = (`$verts` == 3) ? 3 : 7;
 //; my $shortSF = $sig_fig;
 //; my $MRound = 2 * $shortSF - $radix;
 
@@ -96,6 +96,7 @@ module  `mname()`
   ( 
     input logic signed [`$sig_fig`-1:0]  poly_R16S[`$verts`-1:0][`$axis`-1:0], // Micropolygon to Iterate Over
     input logic 			 unsigned [`$sig_fig`-1:0] color_R16U[`$colors`-1:0] , // Color of Poly
+    input logic 			 unsigned [`$sig_fig`-1:0] color2_R16U[`$colors`-1:0] , // Color of Poly
     input logic signed [`$sig_fig`-1:0]  sample_R16S[1:0], // Sample Location    
     input logic 			 validSamp_R16H, // A valid sample location
     input logic 			 isQuad_R16H, //Micropolygon is quad
@@ -175,6 +176,10 @@ module  `mname()`
       
       edge_R16S[5][1] = poly_shift_R16S[0];
       edge_R16S[5][0] = poly_shift_R16S[3];
+      
+   //redundant quad check
+      edge_R16S[6][1] = poly_shift_R16S[3];
+      edge_R16S[6][0] = poly_shift_R16S[1];
    end //always_comb
    //;# }
    
@@ -194,6 +199,7 @@ module  `mname()`
       edge_chk1_R16[3] =  dist_lg_R16S[3]  <=  0 ;
       edge_chk1_R16[4] =  dist_lg_R16S[4]  <  0 ;
       edge_chk1_R16[5] =  dist_lg_R16S[5]  <=  0 ;
+      edge_chk1_R16[6] =  dist_lg_R16S[6]  <=  0 ;
    end  
    //;# } elsif( $edges == 5 ) {
    //always_comb begin
@@ -206,28 +212,30 @@ module  `mname()`
      triRes2 = (edge_chk1_R16[3] && edge_chk1_R16[4] && edge_chk1_R16[5]);
 
      if(isQuad_R16H)begin
-       if(triRes2) begin
-        output_color_R16U = color_R16U; 
+       if(triRes) begin
+        output_color_R16U = color2_R16U; 
        end else begin
         output_color_R16U = color_R16U;
        end
+     end else begin
+        output_color_R16U = color_R16U;
      end
      quadRes =
-	      (!edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
-	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && !edge_chk1_R16[3] && !edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && !edge_chk1_R16[4])
-	   || (!edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && !edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[2] && !edge_chk1_R16[3] && edge_chk1_R16[4])
-	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4])
-	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[2] && edge_chk1_R16[3] && edge_chk1_R16[4]);
+	      (!edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[4] && !edge_chk1_R16[5] && !edge_chk1_R16[6])
+	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[4] && !edge_chk1_R16[5] && !edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[4] && !edge_chk1_R16[5] && !edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && !edge_chk1_R16[6])
+	   || (!edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && !edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[4] && !edge_chk1_R16[5] && edge_chk1_R16[6])
+	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && !edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6])
+	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6]);
 
    end
 
 //   assign hit_valid_R16H = & {edge_chk1_R16[2:0], validSamp_R16H}; //Back Face Cull Case
-   assign hit_valid_R16H = ((triRes && !isQuad_R16H) || (isQuad_R16H && (triRes || triRes2))) && validSamp_R16H;
+   assign hit_valid_R16H = ((triRes && !isQuad_R16H) || (isQuad_R16H && (triRes || triRes2 ||  quadRes))) && validSamp_R16H;
    
    /*Calculate Distance*/
    
@@ -261,7 +269,7 @@ module  `mname()`
    //;                        PipelineDepth=>$pipe_depth-1,
    //;                        Retime=>'YES' );
    `$d_samp_r2->instantiate()`(
-			       .in(color_R16U) , 
+			       .in(output_color_R16U) , 
 			       .clk(clk) , .reset(rst), .en(1'b1),
 			       .out(color_R18U_retime));
    

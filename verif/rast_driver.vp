@@ -64,6 +64,7 @@ module `mname()`
    output logic signed [`$sig_fig`-1:0] 	poly_R10S[`$verts`-1:0][`$axis`-1:0] , // Output: 4 Sets X,Y Fixed Point Values
    output logic                         isQuad_R10H,                     // Output: Is Poly Quad?
    output logic signed [`$sig_fig`-1:0] 	color_R10U[`$colors`-1:0],
+   output logic signed [`$sig_fig`-1:0] 	color2_R10U[`$colors`-1:0],
    output logic                         validPoly_R10H,                  // Output: Valid Data for Operation
    output logic signed [`$sig_fig`-1:0]     screen_RnnnnS[1:0],              // Output: Screen Dimensions
    output logic        [3:0]            subSample_RnnnnU,                // Output: SubSample_Interval
@@ -236,7 +237,7 @@ module `mname()`
                                 num_vertices = 4; 
                                 read2 = 1'b0;
               end 
-	            else if(
+	            else  if(
                             tmp_poly_R10S[1][0] == tmp2_poly_R10S[0][0] && tmp_poly_R10S[1][1] == tmp2_poly_R10S[0][1]  &&
                             tmp_poly_R10S[1][2] == tmp2_poly_R10S[0][2] && tmp_poly_R10S[2][0] == tmp2_poly_R10S[2][0]  &&
                             tmp_poly_R10S[2][1] == tmp2_poly_R10S[2][1] && tmp_poly_R10S[2][2] == tmp2_poly_R10S[2][2]) begin
@@ -280,14 +281,22 @@ module `mname()`
 	           poly_R10S[eachVertsA][1] = tmp_poly_R10S[eachVertsA][1] ;
 	           poly_R10S[eachVertsA][2] = tmp_poly_R10S[eachVertsA][2] ;
 	        end
-                num_vertices = tmp_num_vertices; 
+                num_vertices = 3; 
                 read2 = 1'b1;
 	      end
 	       
 	        color_R10U[0] = tmp_color_R10U[0];
 	        color_R10U[1] = tmp_color_R10U[1];
 	        color_R10U[2] = tmp_color_R10U[2];
-	      
+	     
+	        color2_R10U[0] = tmp2_color_R10U[0];
+	        color2_R10U[1] = tmp2_color_R10U[1];
+	        color2_R10U[2] = tmp2_color_R10U[2];
+/*
+	        color2_R10U[0] = 24'hffffff;
+	        color2_R10U[1] = 24'h000000; 
+	        color2_R10U[2] = 24'h000000;
+*/             	      
                 validPoly_R10H = tmp_validPoly_R10H;
             end
             else begin
@@ -296,12 +305,16 @@ module `mname()`
 	         poly_R10S[eachVertsA][1] = tmp2_poly_R10S[eachVertsA][1] ;
 	         poly_R10S[eachVertsA][2] = tmp2_poly_R10S[eachVertsA][2] ;
 	      end
-	        
-	      color_R10U[0][0] = tmp2_color_R10U[0];
-	      color_R10U[0][1] = tmp2_color_R10U[1];
-	      color_R10U[0][2] = tmp2_color_R10U[2];
-
-              num_vertices = tmp2_num_vertices; 
+	       /* 
+                color_R10U[0] = 24'hffffff;
+	        color_R10U[1] = 24'h000000; 
+	        color_R10U[2] = 24'h000000;
+	        */
+	      color_R10U[0] = tmp2_color_R10U[0];
+	      color_R10U[1] = tmp2_color_R10U[1];
+	      color_R10U[2] = tmp2_color_R10U[2];
+               
+              num_vertices = 3; 
               validPoly_R10H = tmp2_validPoly_R10H;
 
               read2 = 1'b0;

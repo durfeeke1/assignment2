@@ -120,6 +120,7 @@ module `mname()`
    //Input Signals
    input logic signed [`$sig_fig`-1:0] 	poly_R13S[`$verts`-1:0][`$axis`-1:0], //Micropolygon to Iterate Over
    input logic unsigned [`$sig_fig`-1:0] color_R13U[`$colors`-1:0] , //Color of Poly
+   input logic unsigned [`$sig_fig`-1:0] color2_R13U[`$colors`-1:0] , //Color of Poly
    input logic 				isQuad_R13H, //Micropolygon is quad
    input logic signed [`$sig_fig`-1:0] 	box_R13S[1:0][1:0], //Box to iterate for subsamples
    input logic 				validPoly_R13H, //Micropolygon is valid
@@ -135,6 +136,7 @@ module `mname()`
    //Outputs
    output logic signed [`$sig_fig`-1:0] poly_R14S[`$verts`-1:0][`$axis`-1:0], //Micropolygon to Sample Test
    output logic unsigned [`$sig_fig`-1:0] color_R14U[`$colors`-1:0] , //Color of Poly
+   output logic unsigned [`$sig_fig`-1:0] color2_R14U[`$colors`-1:0] , //Color of Poly
    output logic signed [`$sig_fig`-1:0] sample_R14S[1:0], //Sample Location to Be Tested
    output logic 			isQuad_R14H, //Micropygon is quad
    output logic 			validSamp_R14H                   //Sample and Micropolygon are Valid
@@ -151,6 +153,7 @@ module `mname()`
    // then instantiate registers for storing these states
    logic signed [`$sig_fig`-1:0] 	next_poly_R14S[`$verts`-1:0][`$axis`-1:0]; 
    logic unsigned  [`$sig_fig`-1:0] next_color_R14U[`$colors`-1:0] ;
+   logic unsigned  [`$sig_fig`-1:0] next_color2_R14U[`$colors`-1:0] ;
    logic signed [`$sig_fig`-1:0] 	next_sample_R14S[1:0];  
    logic 				next_isQuad_R14H;                   
    logic 				next_validSamp_R14H;                 
@@ -178,6 +181,17 @@ module `mname()`
 			   .in(next_color_R14U) , 
 			   .clk(clk) , .reset(rst), .en(1'b1),
 			   .out(color_R14U));
+   
+   //; my $d3022 = generate( 'dff2', "d3022", 
+   //;                        BitWidth=>$sig_fig,
+   //;                        ArraySize1=>$colors,
+   //;                        PipelineDepth=>1,
+   //;                        Retime=>'NO' );
+   `$d3022->instantiate()` (
+			   .in(next_color2_R14U) , 
+			   .clk(clk) , .reset(rst), .en(1'b1),
+			   .out(color2_R14U));
+   
    
    //; my $d303 = generate( 'dff2', "d303", 
    //;                        BitWidth=>$sig_fig,
@@ -303,6 +317,17 @@ module `mname()`
 	   next_state_R14H = validPoly_R13H ? TEST_STATE : WAIT_STATE;
 	   next_poly_R14S      = poly_R13S;
 	   next_color_R14U     = color_R13U;
+	   next_color2_R14U     = color2_R13U;
+	   next_box_R14S       = box_R13S; 
+	   //next_halt_RnnnnL    = ~((box_R13S != box_R14S) & validPoly_R13H); 
+	   next_halt_RnnnnL    = ~(validPoly_R13H); 
+	end      
+        ( TEST_STATE ): begin
+	   next_sample_R14S    = at_right_edg_R14H ? next_up_samp_R14S : next_rt_samp_R14S; 
+	   next_validSamp_R14H = ~at_end_box_R14H; 
+// TEST CODE - set always valid
+//	   next_validSamp_R14H = 1'b1;
+	   next_isQuad_R14H    = isQuad_R14H;
 	   next_box_R14S       = box_R13S; 
 	   //next_halt_RnnnnL    = ~((box_R13S != box_R14S) & validPoly_R13H); 
 	   next_halt_RnnnnL    = ~(validPoly_R13H); 
@@ -316,6 +341,7 @@ module `mname()`
 	   next_state_R14H     = at_end_box_R14H ? WAIT_STATE : TEST_STATE; 
 	   next_poly_R14S      = poly_R14S;
 	   next_color_R14U     = color_R14U; 
+	   next_color2_R14U     = color2_R14U; 
 	   next_box_R14S       = box_R14S;
 	   next_halt_RnnnnL    = at_end_box_R14H;
 	end
@@ -458,6 +484,7 @@ module `mname()`
 	   next_state_R14H = validPoly_R13H ? TEST_STATE : WAIT_STATE;
 	   next_poly_R14S      = poly_R13S;
 	   next_color_R14U     = color_R13U;
+	   next_color2_R14U     = color2_R13U;
 	   next_box_R14S       = box_R13S; 
 	   next_halt_RnnnnL    = ~(validPoly_R13H); 
 	end      
@@ -470,6 +497,7 @@ module `mname()`
 	   next_state_R14H     = (at_end_box_R14H && ~validPoly_R13H) ? WAIT_STATE : TEST_STATE; 
 	   next_poly_R14S      = at_end_box_and_valid_R14H ? poly_R13S : poly_R14S;
 	   next_color_R14U     = at_end_box_and_valid_R14H ? color_R13U : color_R14U; 
+	   next_color2_R14U     = at_end_box_and_valid_R14H ? color2_R13U : color2_R14U; 
 	   next_box_R14S[0][0]       = at_end_box_and_valid_R14H ? box_R13S[0][0] : box_R14S[0][0];
 	   next_box_R14S[0][1]       = at_end_box_and_valid_R14H ? box_R13S[0][1] : box_R14S[0][1];
 	   next_box_R14S[1][0]       = at_end_box_and_valid_R14H ? box_R13S[1][0] : box_R14S[1][0];

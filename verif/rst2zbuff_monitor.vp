@@ -143,9 +143,9 @@ module `mname()`
    //Check that signals should match
    assert property( sig_eq_con( rst, sample_RnnS[0] , hit_R18S[0]  , 1'b1 )); //will change to something else
    assert property( sig_eq_con( rst, sample_RnnS[1] , hit_R18S[1]  , 1'b1 )); //will change to something else
-   assert property( sig_eq_con( rst, color_RnnU[0]  , color_R18U[0]  , 1'b1 )); //Should Match
-   assert property( sig_eq_con( rst, color_RnnU[1]  , color_R18U[1]  , 1'b1 ));
-   assert property( sig_eq_con( rst, color_RnnU[2]  , color_R18U[2]  , 1'b1 ));
+//   assert property( sig_eq_con( rst, color_RnnU[0]  , color_R18U[0]  , 1'b1 )); //Should Match
+//   assert property( sig_eq_con( rst, color_RnnU[1]  , color_R18U[1]  , 1'b1 ));
+//   assert property( sig_eq_con( rst, color_RnnU[2]  , color_R18U[2]  , 1'b1 ));
 
    
 /* Setup Phase */
@@ -185,9 +185,9 @@ module `mname()`
 
 	    $fwrite( file , "sample.x:%f\t",  `unFix('hit_R18S[0]', $radix)`  );
 	    $fwrite( file , "sample.y:%f\t",  `unFix('hit_R18S[1]', $radix)`  );
-	    $fwrite( file , "color.R:%f\t",   `unFix('color_RnnU[0]', $radix)` );
- 	    $fwrite( file , "color.G:%f\t",   `unFix('color_RnnU[1]', $radix)` );
-	    $fwrite( file , "color.B:%f\t",   `unFix('color_RnnU[2]', $radix)` );
+	    $fwrite( file , "color.R:%f\t",   `unFix('color_R18U[0]', $radix)` );
+ 	    $fwrite( file , "color.G:%f\t",   `unFix('color_R18U[1]', $radix)` );
+	    $fwrite( file , "color.B:%f\t",   `unFix('color_R18U[2]', $radix)` );
 	    $fwrite( file , "hit:%b\n" , hit_valid_R18H );
 	    	    
 	 end else begin // if ( validPoly_R10H )

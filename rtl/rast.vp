@@ -67,6 +67,7 @@ module `mname()`
    // Input Signals
    input logic signed [`$sig_fig`-1:0] 	poly_R10S[`$verts`-1:0][`$axis`-1:0] , // Poly Position
    input logic 				unsigned [`$sig_fig`-1:0] color_R10U[`$colors`-1:0] , // Color of Poly
+   input logic 				unsigned [`$sig_fig`-1:0] color2_R10U[`$colors`-1:0] , // Color of Poly
    input logic 				isQuad_R10H , // Is Poly Quad?
    input logic 				validPoly_R10H , // Valid Data for Operation
 
@@ -91,17 +92,20 @@ module `mname()`
    logic  signed [`$sig_fig`-1:0] 	box_R13S[1:0][1:0];             // 2 Sets X,Y Fixed Point Values   
    logic  signed [`$sig_fig`-1:0] 	poly_R13S[`$verts`-1:0][`$axis`-1:0]; // 4 Sets X,Y Fixed Point Values
    logic 				unsigned [`$sig_fig`-1:0]  color_R13U[`$colors`-1:0]  ;       // Color of Poly
+   logic 				unsigned [`$sig_fig`-1:0]  color2_R13U[`$colors`-1:0]  ;       // Color of Poly
    logic 				validPoly_R13H;                 // Valid Data for Operation
    logic 				isQuad_R13H;                    // Is Poly Quad?
    
    logic signed [`$sig_fig`-1:0] 	poly_R14S[`$verts`-1:0][`$axis`-1:0]; //Micropolygon to Sample Test
    logic 				unsigned [`$sig_fig`-1:0]   color_R14U[`$colors`-1:0] ;         // Color of Poly
+   logic 				unsigned [`$sig_fig`-1:0]   color2_R14U[`$colors`-1:0] ;         // Color of Poly
    logic 				isQuad_R14H;                    //Micropygon is quad
    logic signed [`$sig_fig`-1:0] 	sample_R14S[1:0];               //Sample Location to Be Tested
    logic 				validSamp_R14H;                 //Sample and Micropolygon are Valid
    
    logic signed [`$sig_fig`-1:0] 	poly_R16S[`$verts`-1:0][`$axis`-1:0]; //Micropolygon to Sample Test
    logic 				unsigned [`$sig_fig`-1:0]   color_R16U[`$colors`-1:0] ;         //Color of Poly
+   logic 				unsigned [`$sig_fig`-1:0]   color2_R16U[`$colors`-1:0] ;         //Color of Poly
    logic 				isQuad_R16H;                    //Micropygon is quad
    logic signed [`$sig_fig`-1:0] 	sample_R16S[1:0];               //Sample Location to Be Tested
    logic 				validSamp_R16H;                 //Sample and Micropolygon are Valid
@@ -127,6 +131,7 @@ module `mname()`
    `$bbox -> instantiate()` (
 			     .poly_R10S(poly_R10S) ,
 			     .color_R10U(color_R10U) ,	      
+			     .color2_R10U(color2_R10U) ,	      
 			     .isQuad_R10H(isQuad_R10H) ,
 			     .validPoly_R10H(validPoly_R10H) ,
       
@@ -139,6 +144,7 @@ module `mname()`
       
 			     .poly_R13S(poly_R13S),
 			     .color_R13U(color_R13U) ,	      
+			     .color2_R13U(color2_R13U) ,	      
 			     .isQuad_R13H(isQuad_R13H),
 			     .box_R13S(box_R13S),
 			     .validPoly_R13H(validPoly_R13H) 
@@ -155,6 +161,7 @@ module `mname()`
    `$test_iterator -> instantiate()` (
 				      .poly_R13S(poly_R13S),
 				      .color_R13U(color_R13U) ,	      
+				      .color2_R13U(color2_R13U) ,	      
 				      .isQuad_R13H(isQuad_R13H),
 				      .box_R13S(box_R13S),
 				      .validPoly_R13H(validPoly_R13H),	
@@ -167,6 +174,7 @@ module `mname()`
       
 				      .poly_R14S(poly_R14S),
 				      .color_R14U(color_R14U) ,	      
+				      .color2_R14U(color2_R14U) ,	      
 				      .isQuad_R14H(isQuad_R14H),
 				      .sample_R14S(sample_R14S),
 				      .validSamp_R14H(validSamp_R14H) 
@@ -182,6 +190,7 @@ module `mname()`
    `$hash_jtree -> instantiate()` (
 				   .poly_R14S(poly_R14S),
 				   .color_R14U(color_R14U) ,	      
+				   .color2_R14U(color2_R14U) ,	      
 				   .isQuad_R14H(isQuad_R14H),
 				   .sample_R14S(sample_R14S),
 				   .validSamp_R14H(validSamp_R14H),
@@ -193,6 +202,7 @@ module `mname()`
       
 				   .poly_R16S(poly_R16S),
 				   .color_R16U(color_R16U),			
+				   .color2_R16U(color2_R16U),			
 				   .sample_R16S(sample_R16S),
 				   .validSamp_R16H(validSamp_R16H),
 				   .isQuad_R16H(isQuad_R16H)
@@ -210,6 +220,7 @@ module `mname()`
    `$sampletest -> instantiate()` (   
 				      .poly_R16S(poly_R16S),
 				      .color_R16U(color_R16U),			
+				      .color2_R16U(color2_R16U),			
 				      .sample_R16S(sample_R16S),
 				      .validSamp_R16H(validSamp_R16H),
 				      .isQuad_R16H(isQuad_R16H),

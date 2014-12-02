@@ -36,6 +36,7 @@
    //DUT INPUTS
    logic signed   [`$sig_fig`-1:0] poly_R10S[`$verts`-1:0][`$axis`-1:0] ;   // 4 Sets X,Y Fixed Point Values
    logic unsigned [`$sig_fig`-1:0] color_R10U[`$colors`-1:0] ;   // 4 Sets X,Y Fixed Point Values
+   logic unsigned [`$sig_fig`-1:0] color2_R10U[`$colors`-1:0] ;   // 4 Sets X,Y Fixed Point Values
    logic 		        isQuad_R10H ;           // Is Poly Quad?
    logic 		        validPoly_R10H ;        // Valid Data for Operation
    //DUT INPUTS
@@ -64,6 +65,7 @@
      (
       .poly_R10S(poly_R10S) ,            // Input: 4 Sets X,Y Fixed Point Values
 	     .color_R10U(color_R10U) ,            // Input: 4 Sets X,Y Fixed Point Values
+	     .color2_R10U(color2_R10U) ,            // Input: 4 Sets X,Y Fixed Point Values
 	     .isQuad_R10H (isQuad_R10H) ,       // Input: Is Poly Quad?
 	     .validPoly_R10H(validPoly_R10H) ,  // Input: Valid Data for Operation
 	     
@@ -103,6 +105,7 @@
 	      // Output Signals (to DUT inputs)
       .poly_R10S(poly_R10S) ,            
 	     .color_R10U(color_R10U) ,           
+	     .color2_R10U(color2_R10U) ,           
 	     .isQuad_R10H (isQuad_R10H) ,     
 	     .validPoly_R10H(validPoly_R10H) ,  
 	          // Output Control Signals (to DUT inputs)
