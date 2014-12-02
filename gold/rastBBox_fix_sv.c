@@ -39,7 +39,7 @@ int rastBBox_bbox_check( int   v0_x,     //uPoly
   int by = v2_y - v1_y;
   int bx = v2_x - v1_x;
   int ay = v1_y - v0_y;  
-  int direction = (((ax*by)-(bx*ay)) < 0);
+  int direction = (((ax*by)-(bx*ay)) <= 0);
 
   int  correct = 1 ;  //Assume true
 
@@ -214,7 +214,7 @@ int rastBBox_stest_check( int   v0_x,      //uPoly
 
   int dist0, dist1, dist2, dist3, dist4, dist5;
   int  b0, b1, b2, b3, b4, b5;
-  int Tresult , Qresult , result;
+  int Tresult ,Tresult2, Qresult , result;
 
   //Shift Vertices such that sample is origin
   v0_x = poly.v[0].x[0] - s_x ;
@@ -226,18 +226,20 @@ int rastBBox_stest_check( int   v0_x,      //uPoly
   v3_x = poly.v[3].x[0] - s_x ;
   v3_y = poly.v[3].x[1] - s_y ;
 
-  //Distance from Edge
+  //Distance from Edge poly 1
   dist0 = v0_x * v1_y - v1_x * v0_y;  // 0-1 edge 
   dist1 = v1_x * v2_y - v2_x * v1_y;  // 1-2 edge 
-  dist2 = v2_x * v3_y - v3_x * v2_y;  // 2-3 edge 
-  dist3 = v3_x * v0_y - v0_x * v3_y;  // 3-0 edge 
-  dist4 = v1_x * v3_y - v3_x * v1_y;  // 2-3 edge 
-  dist5 = v2_x * v0_y - v0_x * v2_y;  // 2-0 edge
+  dist2 = v2_x * v0_y - v0_x * v2_y;  // 2-3 edge 
+ 
+  //second poly
+  dist3 = v0_x * v2_y - v2_x * v0_y;  // 3-0 edge 
+  dist4 = v2_x * v3_y - v3_x * v2_y;  // 2-3 edge 
+  dist5 = v3_x * v0_y - v0_x * v3_y;  // 2-0 edge
 
   //Test if on Right Side of Edge
   b0 = dist0 <= 0.0 ;
   b1 = dist1 <  0.0 ;
-  b2 = dist2 <  0.0 ;
+  b2 = dist2 <=  0.0 ;
   b3 = dist3 <= 0.0 ;
   b4 = dist4 <  0.0 ;
   b5 = dist5 <= 0.0 ;
@@ -246,7 +248,12 @@ int rastBBox_stest_check( int   v0_x,      //uPoly
   Tresult = 0;
   Tresult |= ( b0  ? 1 : 0) << 0;
   Tresult |= ( b1  ? 1 : 0) << 1;
-  Tresult |= ( b5  ? 1 : 0) << 2;
+  Tresult |= ( b2  ? 1 : 0) << 2;
+  
+  Tresult2 = 0;
+  Tresult2 |= ( b3  ? 1 : 0) << 0;
+  Tresult2 |= ( b4  ? 1 : 0) << 1;
+  Tresult2 |= ( b5  ? 1 : 0) << 2;
 
   Qresult = 0;
   Qresult |= ( b0 ? 1 : 0) << 0;
@@ -255,8 +262,8 @@ int rastBBox_stest_check( int   v0_x,      //uPoly
   Qresult |= ( b3 ? 1 : 0) << 3;
   Qresult |= ( b4 ? 1 : 0) << 4;
 
-  result =  q ? kQuadCullBackHits_fix[Qresult] : kTriCullBackHits_fix[Tresult]  ;
-
+  //result =  q ? kQuadCullBackHits_fix[Qresult] : kTriCullBackHits_fix[Tresult]  ;
+  result = q ? kTriCullBackHits_fix[Tresult] || kTriCullBackHits_fix[Tresult2] : kTriCullBackHits_fix[Tresult];
   //
   //Copy Past C++ Sample Test Function ****END****
   //
@@ -291,6 +298,12 @@ int rastBBox_check( int   v0_x,      //uPoly
 {
   int ss_w = r_val >> ss_w_lg2 ;// SubSample Width
   int valid , ur_x, ur_y, ll_x, ll_y;
+  
+  int ax = v1_x - v0_x;
+  int by = v2_y - v1_y;
+  int bx = v2_x - v1_x;
+  int ay = v1_y - v0_y;  
+  int direction = (((ax*by)-(bx*ay)) <= 0);
 
   u_Poly poly;
   poly.v[0].x[0] = v0_x;
@@ -368,6 +381,7 @@ int rastBBox_check( int   v0_x,      //uPoly
   valid = ur_y < 0 ? 0 : valid ;
   valid = ll_x > screen_w ? 0 : valid ;
   valid = ll_y > screen_h ? 0 : valid ;
+  valid = valid && (direction);
 
   //
   //Copy Past C++ Bounding Box Function ****END****
@@ -394,7 +408,7 @@ int rastBBox_check( int   v0_x,      //uPoly
       
       int dist0, dist1, dist2, dist3, dist4, dist5;
       int  b0, b1, b2, b3, b4, b5;
-      int Tresult , Qresult , result;
+      int Tresult , Tresult2, Qresult , result;
       
       //Shift Vertices such that sample is origin
       v0_x = poly.v[0].x[0] - s_x ;
@@ -409,15 +423,16 @@ int rastBBox_check( int   v0_x,      //uPoly
       //Distance from Edge
       dist0 = v0_x * v1_y - v1_x * v0_y;  // 0-1 edge 
       dist1 = v1_x * v2_y - v2_x * v1_y;  // 1-2 edge 
-      dist2 = v2_x * v3_y - v3_x * v2_y;  // 2-3 edge 
-      dist3 = v3_x * v0_y - v0_x * v3_y;  // 3-0 edge 
-      dist4 = v1_x * v3_y - v3_x * v1_y;  // 2-3 edge 
-      dist5 = v2_x * v0_y - v0_x * v2_y;  // 2-0 edge
+      dist2 = v2_x * v0_y - v0_x * v2_y;  // 2-3 edge
+ 
+      dist3 = v0_x * v2_y - v2_x * v0_y;  // 3-0 edge 
+      dist4 = v2_x * v3_y - v3_x * v2_y;  // 2-3 edge 
+      dist5 = v3_x * v0_y - v0_x * v3_y;  // 2-0 edge
       
       //Test if on Right Side of Edge
       b0 = dist0 <= 0 ;
       b1 = dist1 <  0 ;
-      b2 = dist2 <  0 ;
+      b2 = dist2 <=  0 ;
       b3 = dist3 <= 0 ;
       b4 = dist4 <  0 ;
       b5 = dist5 <= 0 ;
@@ -426,7 +441,12 @@ int rastBBox_check( int   v0_x,      //uPoly
       Tresult = 0;
       Tresult |= ( b0  ? 1 : 0) << 0;
       Tresult |= ( b1  ? 1 : 0) << 1;
-      Tresult |= ( b5  ? 1 : 0) << 2;
+      Tresult |= ( b2  ? 1 : 0) << 2;
+  
+      Tresult2 = 0;
+      Tresult2 |= ( b3  ? 1 : 0) << 0;
+      Tresult2 |= ( b4  ? 1 : 0) << 1;
+      Tresult2 |= ( b5  ? 1 : 0) << 2;
       
       Qresult = 0;
       Qresult |= ( b0 ? 1 : 0) << 0;
@@ -435,8 +455,9 @@ int rastBBox_check( int   v0_x,      //uPoly
       Qresult |= ( b3 ? 1 : 0) << 3;
       Qresult |= ( b4 ? 1 : 0) << 4;
       
-      result =  q ? kQuadCullBackHits_fix[Qresult] : kTriCullBackHits_fix[Tresult]  ;
+      //result =  q ? kQuadCullBackHits_fix[Qresult] : kTriCullBackHits_fix[Tresult]  ;
   
+      result = q ? kTriCullBackHits_fix[Tresult] || kTriCullBackHits_fix[Tresult2] : kTriCullBackHits_fix[Tresult];
       //
       //Copy Past C++ Sample Test Function ****END****
       //

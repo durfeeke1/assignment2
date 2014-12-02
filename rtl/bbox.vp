@@ -170,6 +170,12 @@ module `mname()`
    logic signed [`$sig_fig`-1:0] 	ay_R10S;                     // y component of vector a 
    logic signed [`$sig_fig`-1:0] 	bx_R10S;                     // x component of vector b 
    logic signed [`$sig_fig`-1:0] 	by_R10S;                     // y component of vector b 
+   logic signed [`$sig_fig`-12:0] 	temp_ax_R10S;                     // x component of vector a 
+   logic signed [`$sig_fig`-12:0] 	temp_ay_R10S;                     // y component of vector a 
+   logic signed [`$sig_fig`-12:0] 	temp_bx_R10S;                     // x component of vector b 
+   logic signed [`$sig_fig`-12:0] 	temp_by_R10S;                     // y component of vector b 
+   logic signed [2*`$sig_fig`-7-`$radix`-1:0] axby_R10S;
+   logic signed [2*`$sig_fig`-7-`$radix`-1:0] bxay_R10S;
    logic				n_dir_R10H;	             // direction of normal vector 
 //; }
    //R10 Signals
@@ -411,7 +417,13 @@ module `mname()`
      bx_R10S = poly_R10S[2][0] - poly_R10S[1][0];
      // ay = y1 - y0
      ay_R10S = poly_R10S[1][1] - poly_R10S[0][1];
-     n_dir_R10H = (((ax_R10S*by_R10S) - (bx_R10S*ay_R10S)) < 0);
+     temp_ax_R10S = ax_R10S[`$sig_fig`-12:0];
+     temp_ay_R10S = ay_R10S[`$sig_fig`-12:0];
+     temp_bx_R10S = bx_R10S[`$sig_fig`-12:0];
+     temp_by_R10S = by_R10S[`$sig_fig`-12:0];
+     axby_R10S = temp_ax_R10S*temp_by_R10S;
+     bxay_R10S = temp_bx_R10S*temp_ay_R10S;
+     n_dir_R10H = ((axby_R10S - bxay_R10S) <= 0);
      
    end
  

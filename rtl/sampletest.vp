@@ -73,8 +73,8 @@
 //;                            Doc=>"How many pipe stages are in this block");
 //; 
 //; # local variables
-//; my $edges = (`$verts` == 3) ? 3 : 7;
-//; my $shortSF = $sig_fig;
+//; my $edges = (`$verts` == 3) ? 3 : 6;
+//; my $shortSF = $sig_fig-7;
 //; my $MRound = 2 * $shortSF - $radix;
 
 
@@ -127,7 +127,8 @@ module  `mname()`
    
    // Signals in Access Order  
    logic signed [`$sig_fig`-1:0] 	 poly_shift_R16S[`$verts`-1:0][1:0]; // Micropolygon to Iterate Over    
-   logic signed [`$sig_fig`-1:0] 	 edge_R16S[`$edges`-1:0][1:0][1:0]; //Edges 
+   logic signed [`$sig_fig`-1:0] 	 edge_R16S[`$edges`-1:0][1:0][1:0]; //Edges
+   logic signed [`$sig_fig`-12:0]        helper[`$edges`-1:0][1:0][1:0]; 
    logic signed [2*`$shortSF`-1:0] 	 dist_lg_R16S[`$edges`-1:0];
    logic signed [`$MRound`-1:0] 	 dist_R16S[`$edges`-1:0];  
    logic [`$edges`-1:0] 		 edge_chk1_R16;
@@ -136,8 +137,7 @@ module  `mname()`
    logic 				 norm_factor_R16S ;
    logic signed [`$sig_fig`-1:0] 	 hit_R16S[`$axis`-1:0];
    logic				 triRes;
-   logic                                 triRes2;
-   logic 				 quadRes; 
+   logic                                 triRes2; 
    logic                         unsigned [`$sig_fig`-1:0] output_color_R16U[`$colors`-1:0];
    // Signals in Access Order 
 
@@ -185,21 +185,25 @@ module  `mname()`
    
    //; for( my $i = 0 ; $i < $edges ; $i++) {
    always_comb begin
-      dist_lg_R16S[`$i`] =     edge_R16S[`$i`][0][0] * edge_R16S[`$i`][1][1]
-     -  edge_R16S[`$i`][0][1] * edge_R16S[`$i`][1][0];
+      helper[`$i`][0][0][`$sig_fig`-12:0] = edge_R16S[`$i`][0][0][`$sig_fig`-12:0];
+      helper[`$i`][0][1][`$sig_fig`-12:0] = edge_R16S[`$i`][0][1][`$sig_fig`-12:0];
+      helper[`$i`][1][0][`$sig_fig`-12:0] = edge_R16S[`$i`][1][0][`$sig_fig`-12:0];
+      helper[`$i`][1][1][`$sig_fig`-12:0] = edge_R16S[`$i`][1][1][`$sig_fig`-12:0];
+      dist_R16S[`$i`] =     helper[`$i`][0][0] * helper[`$i`][1][1]
+     -  helper[`$i`][0][1] * helper[`$i`][1][0];
    end	    
    //; }
 
    
    //; #if( $edges == 3 ) {
    always_comb begin
-      edge_chk1_R16[0] =  dist_lg_R16S[0]  <=  0 ;
-      edge_chk1_R16[1] =  dist_lg_R16S[1]  <   0 ;
-      edge_chk1_R16[2] =  dist_lg_R16S[2]  <=  0 ;
-      edge_chk1_R16[3] =  dist_lg_R16S[3]  <=  0 ;
-      edge_chk1_R16[4] =  dist_lg_R16S[4]  <  0 ;
-      edge_chk1_R16[5] =  dist_lg_R16S[5]  <=  0 ;
-      edge_chk1_R16[6] =  dist_lg_R16S[6]  <=  0 ;
+      edge_chk1_R16[0] =  dist_R16S[0]  <=  0 ;
+      edge_chk1_R16[1] =  dist_R16S[1]  <   0 ;
+      edge_chk1_R16[2] =  dist_R16S[2]  <=  0 ;
+      edge_chk1_R16[3] =  dist_R16S[3]  <=  0 ;
+      edge_chk1_R16[4] =  dist_R16S[4]  <  0 ;
+      edge_chk1_R16[5] =  dist_R16S[5]  <=  0 ;
+      // edge_chk1_R16[6] =  dist_lg_R16S[6]  <=  0 ;
    end  
    //;# } elsif( $edges == 5 ) {
    //always_comb begin
@@ -220,6 +224,7 @@ module  `mname()`
      end else begin
         output_color_R16U = color_R16U;
      end
+/*
      quadRes =
 	      (!edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[4] && !edge_chk1_R16[5] && !edge_chk1_R16[6])
 	   || (!edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[4] && !edge_chk1_R16[5] && !edge_chk1_R16[6])
@@ -231,11 +236,12 @@ module  `mname()`
 	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && !edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6])
 	   || (edge_chk1_R16[0] && !edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6])
 	   || (edge_chk1_R16[0] && edge_chk1_R16[1] && edge_chk1_R16[4] && edge_chk1_R16[5] && edge_chk1_R16[6]);
+*/
 
    end
 
 //   assign hit_valid_R16H = & {edge_chk1_R16[2:0], validSamp_R16H}; //Back Face Cull Case
-   assign hit_valid_R16H = ((triRes && !isQuad_R16H) || (isQuad_R16H && (triRes || triRes2 ||  quadRes))) && validSamp_R16H;
+   assign hit_valid_R16H = ((triRes && !isQuad_R16H) || (isQuad_R16H && ((triRes || triRes2)))) && validSamp_R16H;
    
    /*Calculate Distance*/
    
