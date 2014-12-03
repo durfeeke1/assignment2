@@ -135,6 +135,8 @@ set_dont_touch_network $RST
 #set_power_prediction
 set_optimize_registers true -design ${DESIGN_TARGET}
 compile_ultra -timing_high_effort_script
+insert_clock_gating
+#compile_ultra -retime
 #balance_registers
 #justification_effort high -delay_threshold .25
 

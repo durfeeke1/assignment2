@@ -74,7 +74,7 @@
 //; 
 //; # local variables
 //; my $edges = (`$verts` == 3) ? 3 : 6;
-//; my $shortSF = $sig_fig-7;
+//; my $shortSF = $sig_fig-6;
 //; my $MRound = 2 * $shortSF - $radix;
 
 
@@ -128,7 +128,7 @@ module  `mname()`
    // Signals in Access Order  
    logic signed [`$sig_fig`-1:0] 	 poly_shift_R16S[`$verts`-1:0][1:0]; // Micropolygon to Iterate Over    
    logic signed [`$sig_fig`-1:0] 	 edge_R16S[`$edges`-1:0][1:0][1:0]; //Edges
-   logic signed [`$sig_fig`-12:0]        helper[`$edges`-1:0][1:0][1:0]; 
+   logic signed [`$sig_fig`-11:0]        helper[`$edges`-1:0][1:0][1:0]; 
    logic signed [2*`$shortSF`-1:0] 	 dist_lg_R16S[`$edges`-1:0];
    logic signed [`$MRound`-1:0] 	 dist_R16S[`$edges`-1:0];  
    logic [`$edges`-1:0] 		 edge_chk1_R16;
@@ -185,10 +185,10 @@ module  `mname()`
    
    //; for( my $i = 0 ; $i < $edges ; $i++) {
    always_comb begin
-      helper[`$i`][0][0][`$sig_fig`-12:0] = edge_R16S[`$i`][0][0][`$sig_fig`-12:0];
-      helper[`$i`][0][1][`$sig_fig`-12:0] = edge_R16S[`$i`][0][1][`$sig_fig`-12:0];
-      helper[`$i`][1][0][`$sig_fig`-12:0] = edge_R16S[`$i`][1][0][`$sig_fig`-12:0];
-      helper[`$i`][1][1][`$sig_fig`-12:0] = edge_R16S[`$i`][1][1][`$sig_fig`-12:0];
+      helper[`$i`][0][0][`$sig_fig`-11:0] = edge_R16S[`$i`][0][0][`$sig_fig`-11:0];
+      helper[`$i`][0][1][`$sig_fig`-11:0] = edge_R16S[`$i`][0][1][`$sig_fig`-11:0];
+      helper[`$i`][1][0][`$sig_fig`-11:0] = edge_R16S[`$i`][1][0][`$sig_fig`-11:0];
+      helper[`$i`][1][1][`$sig_fig`-11:0] = edge_R16S[`$i`][1][1][`$sig_fig`-11:0];
       dist_R16S[`$i`] =     helper[`$i`][0][0] * helper[`$i`][1][1]
      -  helper[`$i`][0][1] * helper[`$i`][1][0];
    end	    
