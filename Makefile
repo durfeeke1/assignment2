@@ -201,8 +201,7 @@ DESIGN_TARGET = rast
 
 # The target clock period and area in library units (nS) (um^2). 45 
 # you should be able to achieve 0.3ns clock rate by adjusting pipeline depths
-CLK_PERIOD=0.3; 
-TARGET_AREA=40000;
+CLK_PERIOD=0.37 
 
 
 # flags for dc/icc
@@ -215,8 +214,8 @@ DC_LOG	= $(SYNTH_LOGS)/dc.log
 SET_SYNTH_PARAMS = 	set DESIGN_HOME $(DESIGN_HOME); 	\
 			set RUNDIR $(RUNDIR); 			\
 			set DESIGN_TARGET $(DESIGN_TARGET); 	\
-			set CLK_PERIOD  $(CLK_PERIOD); 				\
-			set TARGET_AREA $(TARGET_AREA);	
+			set CLK_PERIOD  $(CLK_PERIOD); 				
+			#set TARGET_AREA $(TARGET_AREA);	
 
 
 DC_COMMAND_STRING = "$(SET_SYNTH_PARAMS) source -echo -verbose $(SYNTH_HOME)/rast_dc.tcl"
