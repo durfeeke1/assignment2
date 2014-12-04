@@ -122,7 +122,6 @@ set_input_delay -clock $CLK 0 subSample_RnnnnU
 
 # set target die area
 set_max_area 0
--ignore_tns
 # set DC don't touch reset network
 remove_driving_cell $RST
 set_drive 0 $RST
