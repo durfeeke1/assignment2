@@ -121,7 +121,8 @@ set_input_delay -clock $CLK 0 screen_RnnnnS
 set_input_delay -clock $CLK 0 subSample_RnnnnU
 
 # set target die area
-
+set_max_area 0
+-ignore_tns
 # set DC don't touch reset network
 remove_driving_cell $RST
 set_drive 0 $RST
@@ -134,7 +135,9 @@ set_dont_touch_network $RST
 #set power analysis
 #set_power_prediction
 set_optimize_registers true -design ${DESIGN_TARGET}
-compile_ultra -timing_high_effort_script
+#compile_ultra -timing_high_effort_script
+#compile_ultra -area_high_effort_script
+compile_ultra
 insert_clock_gating
 #compile_ultra -retime
 #balance_registers
